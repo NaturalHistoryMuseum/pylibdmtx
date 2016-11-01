@@ -18,7 +18,7 @@ brew install libdmtx
 On Linux:
 
 ```
-sudo apt-get install libdmtx
+sudo apt-get install libdmtx0a
 ```
 
 Install this Python wrapper:
