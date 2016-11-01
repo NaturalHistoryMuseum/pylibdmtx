@@ -4,8 +4,8 @@
 [![Python Versions](https://img.shields.io/badge/python-2.7%2C%203.4%2C%203.5-blue.svg)](https://github.com/NaturalHistoryMuseum/pylibdmtx)
 [![Coverage Status](https://coveralls.io/repos/github/NaturalHistoryMuseum/pylibdmtx/badge.svg?branch=master)](https://coveralls.io/github/NaturalHistoryMuseum/pylibdmtx?branch=master)
 
-A Python wrapper around the [libdmtx](http://libdmtx.sourceforge.net/) datamatrix
-barcode reader.
+A `ctypes`-based Python wrapper around the [libdmtx](http://libdmtx.sourceforge.net/)
+datamatrix barcode reader.
 
 The [pydmtx](https://sourceforge.net/p/libdmtx/dmtx-wrappers/ci/master/tree/python/)
 wrapper is stuck in Python 2.x-land. This `ctypes`-based wrapper brings
