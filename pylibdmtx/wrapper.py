@@ -317,14 +317,6 @@ dmtxTimeAdd = libdmtx_function(
    c_long       # msec
 )
 
-if 'Windows' != platform.system():
-   # Function not exposed by the Windows DLLs
-   dmtxTimeExceeded = libdmtx_function(
-      'dmtxTimeExceeded',
-      c_int,
-      DmtxTime    # timeout
-   )
-
 dmtxDecodeCreate = libdmtx_function(
    'dmtxDecodeCreate',
    POINTER(DmtxDecode),
