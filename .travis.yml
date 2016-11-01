@@ -1,16 +1,23 @@
-language: python
+language:
+  - python
 
-sudo: required
+sudo:
+  - required
 
 python:
-    - "2.7"
-    - "3.4"
-    - "3.5"
+  - "2.7"
+  - "3.4"
+  - "3.5"
 
 before_install:
   - sudo apt-get -qq update
   - sudo apt-get install -y libdmtx0a
 
-install: pip install tox-travis
+install:
+  - pip install tox-travis coveralls
 
-script: tox
+script:
+  - tox
+
+after_success:
+  - coveralls
