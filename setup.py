@@ -31,6 +31,7 @@ setup_data = {
             ['{0}=pylibdmtx.scripts.{0}:main'.format(script) for script in SCRIPTS],
     },
     'extras_require': {
+        ':python_version=="2.7"': ['enum34>=1.1.6', 'pathlib>=1.0.1'],
         'scripts': [PILLOW],
     },
     'tests_require': [
@@ -48,19 +49,6 @@ setup_data = {
         'Programming Language :: Python :: 3.5',
     ],
 }
-
-
-if 2 == sys.version_info[0]:
-    # Extra dependencies for Python 2.x
-    # enum34
-    install_requires = setup_data.get('install_requires', [])
-    install_requires.append('enum34>=1.1.6')
-    setup_data['install_requires'] = install_requires
-
-    # pathlib required for testing
-    tests_require = setup_data.get('tests_require', [])
-    tests_require.append('pathlib>=1.0.1')
-    setup_data['tests_require'] = tests_require
 
 
 def setuptools_setup():
