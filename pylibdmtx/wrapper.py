@@ -1,6 +1,7 @@
 """Low-level wrapper around libdmtx's interface
 """
 import platform
+import sys
 
 from ctypes import (
    addressof, cdll, c_char_p, c_double, c_int, c_long, c_size_t, c_ubyte,
@@ -273,12 +274,13 @@ def load_libdmtx():
             msg = msg.format(python_bit_depth)
             raise PyLibDMTXError(msg)
 
-         path = Path(__file__).parent.joinpath(
-            'lib',
-            'libdmtx-{0}.dll'.format(python_bit_depth)
-         )
-         path = str(path)
-         # path = 'lib/libdmtx-{0}.dll'.format(python_bit_depth)
+         fname = 'libdmtx-{0}.dll'.format(python_bit_depth)
+         if hasattr(sys, 'frozen'):
+            # The DLL should be on the path
+            path = fname
+         else:
+            # Pick up the DLL from the lib directory
+            path = str(Path(__file__).parent.joinpath('lib', fname))
       elif 'Darwin' == sysname:
          # Assume a dylib that is on path
          path = "libdmtx.dylib"
