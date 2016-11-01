@@ -281,7 +281,7 @@ def load_libdmtx():
          path = "libdmtx.dylib"
       else:
          # Assume a shared object that is on path
-         path = "libdmtx.so"
+         path = "libdmtx.so.0"
 
       LIBDMTX = cdll.LoadLibrary(path)
 
