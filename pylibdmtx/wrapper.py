@@ -1,13 +1,13 @@
 """Low-level wrapper around libdmtx's interface
 """
 import platform
-import pkg_resources
 
 from ctypes import (
    addressof, cdll, c_char_p, c_double, c_int, c_long, c_size_t, c_ubyte,
    c_uint, c_ulong, c_ulonglong, Structure, CFUNCTYPE, pointer, POINTER
 )
 from enum import IntEnum, unique
+from pathlib import Path
 
 from .pylibdmtx_error import PyLibDMTXError
 
@@ -273,9 +273,12 @@ def load_libdmtx():
             msg = msg.format(python_bit_depth)
             raise PyLibDMTXError(msg)
 
-         path = pkg_resources.resource_filename(
-            'libdmtx', 'lib/libdmtx-{0}.dll'.format(python_bit_depth)
+         path = Path(__file__).parent.joinpath(
+            'lib',
+            'libdmtx-{0}.dll'.format(python_bit_depth)
          )
+         path = str(path)
+         # path = 'lib/libdmtx-{0}.dll'.format(python_bit_depth)
       elif 'Darwin' == sysname:
          # Assume a dylib that is on path
          path = "libdmtx.dylib"
@@ -314,11 +317,13 @@ dmtxTimeAdd = libdmtx_function(
    c_long       # msec
 )
 
-dmtxTimeExceeded = libdmtx_function(
-   'dmtxTimeExceeded',
-   c_int,
-   DmtxTime    # timeout
-)
+if 'Windows' != platform.system():
+   # Function not exposed by the Windows DLLs
+   dmtxTimeExceeded = libdmtx_function(
+      'dmtxTimeExceeded',
+      c_int,
+      DmtxTime    # timeout
+   )
 
 dmtxDecodeCreate = libdmtx_function(
    'dmtxDecodeCreate',
