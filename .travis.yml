@@ -1,6 +1,6 @@
 language: python
 
-sudo: false
+sudo: required
 
 python:
     - "2.7"
