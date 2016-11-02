@@ -27,10 +27,24 @@ PATH=/Users/lawh/local/python-2.7.12/bin:/Users/lawh/local/python-3.4.5/bin:/Use
 tox
 ```
 
+## Windows
+
+* Install the current release of Python 3.x to its default location
+
+* Save the 32-bit and 64-bit `libdmtx.dll` files to
+`pylibdmtx\lib\libdmtx-32.dll` and `pylibdmtx\lib\libdmtx-64.dll`
+respectively.
+
+
 ## Releasing
 
 Generate the `reStructuredText README`
 
 ```
 pandoc --from=markdown --to=rst README.md -o README.rst
+```
+
+```
+pip install wheel
+python setup.py bdist_wheel
 ```
