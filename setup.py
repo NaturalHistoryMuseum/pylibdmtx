@@ -11,17 +11,18 @@ SCRIPTS = ['read_datamatrix']
 # Optional dependency
 PILLOW = 'Pillow>=3.2.0'
 
+URL = 'https://github.com/NaturalHistoryMuseum/pylibdmtx/'
+
+
 setup_data = {
     'name': 'pylibdmtx',
     'version': pylibdmtx.__version__,
     'author': 'Lawrence Hudson',
     'author_email': 'l.hudson@nhm.ac.uk',
-    'url': 'https://github.com/NaturalHistoryMuseum/pylibdmtx/',
+    'url': URL,
     'license': 'LICENSE.txt',
     'description': pylibdmtx.__doc__,
-    'long_description':
-        ('View the github page (https://github.com/NaturalHistoryMuseum/pylibdmtx) '
-         'for more details.'),
+    'long_description': 'Visit {0} for more details.'.format(URL),
     'packages': ['pylibdmtx', 'pylibdmtx.tests'],
     'include_package_data': True,
     'test_suite': 'pylibdmtx.tests',
@@ -32,9 +33,12 @@ setup_data = {
     },
     'extras_require': {
         ':python_version=="2.7"': ['enum34>=1.1.6', 'pathlib>=1.0.1'],
-        'scripts': [PILLOW],
+        'scripts': [
+            PILLOW,
+        ],
     },
     'tests_require': [
+        # TODO How to specify OpenCV? 'cv2>=2.4.8,<3',
         'nose>=1.3.4',
         PILLOW
     ],
