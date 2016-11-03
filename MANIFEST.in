@@ -1,3 +1,0 @@
-include pylibdmtx/tests/*.png
-include pylibdmtx/lib/libdmtx*dll
-include pylibdmtx/lib/libdmtx-LICENSE.txt

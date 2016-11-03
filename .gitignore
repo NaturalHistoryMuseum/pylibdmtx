@@ -6,4 +6,4 @@ dist
 .tox
 README.rst
 .coverage
-pylibdmtx/lib/*dll
+*dll

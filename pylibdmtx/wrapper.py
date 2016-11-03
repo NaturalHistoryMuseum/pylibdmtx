@@ -7,6 +7,7 @@ from ctypes import (
    addressof, cdll, c_char_p, c_double, c_int, c_long, c_size_t, c_ubyte,
    c_uint, c_ulong, c_ulonglong, Structure, CFUNCTYPE, pointer, POINTER
 )
+from ctypes.util import find_library
 from enum import IntEnum, unique
 from pathlib import Path
 
@@ -259,36 +260,24 @@ LIBDMTX = None
 def load_libdmtx():
    global LIBDMTX
    if not LIBDMTX:
-      # On Windows, use the DLL within the lib subdirectory
-      # http://stackoverflow.com/a/31495246/1773758
-      sysname = platform.system()
-      if 'Windows' == sysname:
-         # Bit depth of interpreter
-         python_bit_depth = platform.architecture()[0]
-         if '32bit' == python_bit_depth:
-            python_bit_depth = '32'
-         elif '64bit' == python_bit_depth:
-            python_bit_depth = '64'
+      if 'Windows' == platform.system():
+         # Assume a DLL that is on sys.path. The DLL is specific to bit depth of
+         # interpreter.
+         fname = 'libdmtx-{0}.dll'.format('64' if sys.maxsize > 2**32 else '32')
+         for dir in sys.path:
+            try:
+               LIBDMTX = cdll.LoadLibrary(str(Path(dir).joinpath(fname)))
+            except OSError as e:
+               pass
+            else:
+               # Sucessfully loaded the DLL
+               break
          else:
-            msg = 'Unable to determine bit depth of interpreter from [{0}]'
-            msg = msg.format(python_bit_depth)
-            raise PyLibDMTXError(msg)
-
-         fname = 'libdmtx-{0}.dll'.format(python_bit_depth)
-         if hasattr(sys, 'frozen'):
-            # The DLL should be on the path
-            path = fname
-         else:
-            # Pick up the DLL from the lib directory
-            path = str(Path(__file__).parent.joinpath('lib', fname))
-      elif 'Darwin' == sysname:
-         # Assume a dylib that is on path
-         path = "libdmtx.dylib"
+            raise PyLibDMTXError('Unable to find libdmtx DLL')
       else:
-         # Assume a shared object that is on path
-         path = "libdmtx.so.0"
-
-      LIBDMTX = cdll.LoadLibrary(path)
+         # Assume a dylib or shared object that is on the path
+         path = find_library('libdmtx')
+         LIBDMTX = cdll.LoadLibrary(path)
 
    return LIBDMTX
 

@@ -1,6 +1,4 @@
 #!/usr/bin/env python
-import io
-import os
 import sys
 
 import pylibdmtx
@@ -24,7 +22,6 @@ setup_data = {
     'description': pylibdmtx.__doc__,
     'long_description': 'Visit {0} for more details.'.format(URL),
     'packages': ['pylibdmtx', 'pylibdmtx.tests'],
-    'include_package_data': True,
     'test_suite': 'pylibdmtx.tests',
     'scripts': ['pylibdmtx/scripts/{0}.py'.format(script) for script in SCRIPTS],
     'entry_points': {
@@ -42,6 +39,8 @@ setup_data = {
         'nose>=1.3.4',
         PILLOW
     ],
+    'include_package_data': True,
+    'package_data': {'pylibdmtx': ['pylibdmtx/tests/*.png']},
     'classifiers': [
         'Development Status :: 4 - Beta',
         'License :: OSI Approved :: MIT License',
@@ -53,6 +52,16 @@ setup_data = {
         'Programming Language :: Python :: 3.5',
     ],
 }
+
+
+if 'bdist_wheel' in sys.argv and ('--plat-name=win32' in sys.argv or '--plat-name=win_amd64' in sys.argv):
+    # Include the libdmtx runtime DLL and its license in 'data_files'
+    dll = 'libdmtx-{0}.dll'.format(
+        '32' if '--plat-name=win32' in sys.argv else '64'
+    )
+    data_files = setup_data.get('data_files', [])
+    data_files.append(('', ['libdmtx-LICENSE.txt', '{0}'.format(dll)]))
+    setup_data['data_files'] = data_files
 
 
 def setuptools_setup():
