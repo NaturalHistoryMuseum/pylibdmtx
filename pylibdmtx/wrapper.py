@@ -277,12 +277,8 @@ def load_libdmtx():
                     break
             else:
                 raise PyLibDMTXError('Unable to find libdmtx DLL')
-    elif 'Darwin' == sysname:
-        # Assume a dylib that is on path
-        path = "libdmtx.dylib"
-    else:
-        # Assume a shared object that is on path
-        path = "libdmtx.so.0"
+        else:
+            LIBDMTX = cdll.LoadLibrary(find_library('dmtx'))
 
     return LIBDMTX
 
