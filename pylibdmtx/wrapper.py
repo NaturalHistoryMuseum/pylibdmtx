@@ -278,7 +278,10 @@ def load_libdmtx():
             else:
                 raise PyLibDMTXError('Unable to find libdmtx DLL')
         else:
-            LIBDMTX = cdll.LoadLibrary(find_library('dmtx'))
+            path = find_library('dmtx')
+            if not path:
+                raise PyLibDMTXError('Unable to find libdmtx shared library')
+            LIBDMTX = cdll.LoadLibrary(path)
 
     return LIBDMTX
 
