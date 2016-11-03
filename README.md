@@ -84,4 +84,4 @@ neede to reimplement `pydmtx`'s `decode` function
 
 `pylibdmtx` is distributed under the MIT license (see `LICENCE.txt`).
 The `libdmtx` shared library is distributed under the Simplified BSD license
-(see `pylibdmtx/lib/libdmtx-LICENCE.txt`)
+(see `libdmtx-LICENCE.txt`)
