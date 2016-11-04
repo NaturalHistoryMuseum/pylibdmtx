@@ -29,6 +29,7 @@ setup_data = {
     'url': URL,
     'license': 'MIT',
     'description': pylibdmtx.__doc__,
+    'long_description': readme(),
     'packages': ['pylibdmtx', 'pylibdmtx.scripts', 'pylibdmtx.tests'],
     'test_suite': 'pylibdmtx.tests',
     'scripts': ['pylibdmtx/scripts/{0}.py'.format(script) for script in SCRIPTS],
