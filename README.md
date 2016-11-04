@@ -9,11 +9,15 @@ datamatrix barcode reader.
 
 The [pydmtx](https://sourceforge.net/p/libdmtx/dmtx-wrappers/ci/master/tree/python/)
 wrapper is stuck in Python 2.x-land. This `ctypes`-based wrapper brings
-`libdmtx` to 2.7 and to 3.4 or greater.
+`libdmtx` to Python 2.7 and to Python 3.4 or greater.
 
 ## Installation
 
-Install the `libdmtx` shared lib. On Mac OS X:
+The `libdmtx` `DLL`s are included with the Windows Python wheels.
+On other operating systems, you will need to install the `libdmtx` shared
+library.
+
+On Mac OS X:
 
 ```
 brew install libdmtx
@@ -25,17 +29,17 @@ On Linux:
 sudo apt-get install libdmtx0a
 ```
 
-Install this Python wrapper:
+Install this Python wrapper; use the second form to install dependencies of
+the `read_datamatrix` command-line script:
 
 ```
 pip install pylibdmtx
+pip install pylibdmtx[scripts]
 ```
-
-The `libdmtx` `DLL`s are included with the Windows Python wheel.
 
 ## Example usage
 
-The `decode` function accepts instances of `PIL.Image`
+The `decode` function accepts instances of `PIL.Image`.
 
 ```
 >>> from pylibdmtx.pylibdmtx import decode
@@ -46,7 +50,7 @@ The `decode` function accepts instances of `PIL.Image`
 ```
 
 It also accepts instances of `numpy.ndarray`, which might come from loading
-images using OpenCV
+images using [OpenCV](http://opencv.org/).
 
 ```
 >>> import cv2
@@ -69,12 +73,11 @@ You can also provide a tuple `(pixels, width, height)`
 
 Feel free to submit a PR to address any of these.
 
-* Decoding only - no encoding
+* decoding only - no encoding
 
 * I took the bone-headed approach of copying the logic in
 `pydmtx`'s `decode` function
-(in [`pydmtxmodule.c`](https://sourceforge.net/p/libdmtx/dmtx-wrappers/ci/master/tree/python/))
-- there might be more of `libdmtx`'s functionality that could be used to read
+(in [`pydmtxmodule.c`](https://sourceforge.net/p/libdmtx/dmtx-wrappers/ci/master/tree/python/)); there might be more of `libdmtx`'s functionality that could be used to read
 barcodes
 
 * I exposed the bare minimum of functions, defines, enums and typedefs
@@ -84,4 +87,4 @@ neede to reimplement `pydmtx`'s `decode` function
 
 `pylibdmtx` is distributed under the MIT license (see `LICENCE.txt`).
 The `libdmtx` shared library is distributed under the Simplified BSD license
-(see `libdmtx-LICENCE.txt`)
+(see `libdmtx-LICENCE.txt`).
