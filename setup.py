@@ -12,6 +12,15 @@ PILLOW = 'Pillow>=3.2.0'
 URL = 'https://github.com/NaturalHistoryMuseum/pylibdmtx/'
 
 
+def readme():
+    try:
+        # README.rst is generated from README.md (see DEVELOPING.md)
+        with open('README.rst') as f:
+            return f.read()
+    except:
+        return 'Visit {0} for more details.'.format(URL)
+
+
 setup_data = {
     'name': 'pylibdmtx',
     'version': pylibdmtx.__version__,
@@ -20,8 +29,7 @@ setup_data = {
     'url': URL,
     'license': 'MIT',
     'description': pylibdmtx.__doc__,
-    'long_description': 'Visit {0} for more details.'.format(URL),
-    'packages': ['pylibdmtx', 'pylibdmtx.tests'],
+    'packages': ['pylibdmtx', 'pylibdmtx.scripts', 'pylibdmtx.tests'],
     'test_suite': 'pylibdmtx.tests',
     'scripts': ['pylibdmtx/scripts/{0}.py'.format(script) for script in SCRIPTS],
     'entry_points': {
