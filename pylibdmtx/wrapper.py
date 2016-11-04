@@ -11,8 +11,6 @@ from ctypes.util import find_library
 from enum import IntEnum, unique
 from pathlib import Path
 
-from .pylibdmtx_error import PyLibDMTXError
-
 
 # Types
 c_ubyte_p = POINTER(c_ubyte)
@@ -276,11 +274,12 @@ def load_libdmtx():
                     # Sucessfully loaded the DLL
                     break
             else:
-                raise PyLibDMTXError('Unable to find libdmtx DLL')
+                raise ImportError('Unable to find libdmtx DLL')
         else:
+            # Assume a shared library on the path.
             path = find_library('dmtx')
             if not path:
-                raise PyLibDMTXError('Unable to find libdmtx shared library')
+                raise ImportError('Unable to find dmtx shared library')
             LIBDMTX = cdll.LoadLibrary(path)
 
     return LIBDMTX
