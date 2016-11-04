@@ -36,22 +36,85 @@ the same method to be used when `pylibdmtx` is run from source, as an installed 
 
 ## Releasing
 
-Install tools.
+1. Install tools.
 
 ```
 pip install wheel
 brew install pandoc
 ```
 
-Generate the `reStructuredText README.rst` from `README.md` and create
-source and wheel builds. The `win32` and `win_amd64` will contain the
-appropriate `libdmtx.dll`.
+2. Build
+    Generate the `reStructuredText README.rst` from `README.md` and create
+    source and wheel builds. The `win32` and `win_amd64` will contain the
+    appropriate `libdmtx.dll`.
 
-```
-pandoc --from=markdown --to=rst README.md -o README.rst
-rm -rf build dist
-./setup.py sdist
-./setup.py bdist_wheel
-./setup.py bdist_wheel --plat-name=win32
-./setup.py bdist_wheel --plat-name=win_amd64
-```
+    ```
+    pandoc --from=markdown --to=rst README.md -o README.rst
+    rm -rf build dist
+    ./setup.py bdist_wheel
+    ./setup.py bdist_wheel --plat-name=win32
+    ./setup.py bdist_wheel --plat-name=win_amd64
+    ```
+
+3. Release to pypitest (see https://wiki.python.org/moin/TestPyPI for details)
+
+    ```
+    mkvirtualenv pypi
+    pip install twine
+    twine register -r pypitest dist/pylibdmtx-0.1.1-py2.py3-none-any.whl
+    twine upload -r pypitest dist/*
+    ```
+
+4. Test the release to pypitest
+
+    * Check https://testpypi.python.org/pypi/pylibdmtx/
+
+    * If you are on Windows
+
+    ```
+    set PATH=%PATH%;c:\python35\;c:\python35\scripts
+    \Python35\Scripts\mkvirtualenv.bat --python=c:\python27\python.exe test1
+    ```
+
+    * Install dependencies that are not on testpypi.python.org.
+    If you are on Python 2.x, these are mandatory
+
+    ```
+    pip install enum34 pathlib
+    ```
+
+    * Pillow for tests and `read_datamatrix`. We can't use the
+    `pip install pylibdmtx[scripts]` form here because `Pillow` will not be
+    on testpypi.python.org
+
+    ```
+    pip install Pillow
+    ```
+
+    * Install the package itself
+
+    ```
+    pip install --index https://testpypi.python.org/simple pylibdmtx
+    ```
+
+    * Test
+
+    ```
+    read_datamatrix --help
+    read_datamatrix <path-to-datamatrix.png>
+    ```
+
+5. If all is well, release to PyPI
+
+    ```
+    twine register dist/pylibdmtx-0.1.1-py2.py3-none-any.whl
+    twine upload dist/*
+    ```
+
+    * Check https://pypi.python.org/pypi/pylibdmtx/
+
+    * Install!
+
+    ```
+    pip install pylibdmtx[scripts]
+    ```
