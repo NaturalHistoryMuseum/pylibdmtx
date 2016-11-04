@@ -36,12 +36,16 @@ the same method to be used when `pylibdmtx` is run from source, as an installed 
 
 ## Releasing
 
-Generate the `reStructuredText README`
+Install tools.
 
 ```
 pip install wheel
 brew install pandoc
 ```
+
+Generate the `reStructuredText README.rst` from `README.md` and create
+source and wheel builds. The `win32` and `win_amd64` will contain the
+appropriate `libdmtx.dll`.
 
 ```
 pandoc --from=markdown --to=rst README.md -o README.rst
