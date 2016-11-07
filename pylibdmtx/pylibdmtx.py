@@ -1,13 +1,14 @@
+from __future__ import print_function
 from collections import namedtuple
 from contextlib import contextmanager
-from ctypes import cast, string_at
+from ctypes import byref, cast, string_at
 
 from .pylibdmtx_error import PyLibDMTXError
 from .wrapper import (
    c_ubyte_p, dmtxImageCreate, dmtxImageDestroy, dmtxDecodeCreate,
    dmtxDecodeDestroy, dmtxRegionDestroy, dmtxMessageDestroy, dmtxTimeAdd,
    dmtxTimeNow, dmtxDecodeMatrixRegion, dmtxRegionFindNext,
-   dmtxMatrix3VMultiplyBy,
+   dmtxMatrix3VMultiplyBy, dmtxDecodeSetProp,
    DmtxFlip, DmtxPackOrder, DmtxProperty, DmtxUndefined, DmtxVector2
 )
 
@@ -17,6 +18,14 @@ Rect = namedtuple('Rect', ['left', 'top', 'width', 'height'])
 
 # Results of reading a barcode
 Decoded = namedtuple('Decoded', ['data', 'rect'])
+
+# Crude mapping from bits-per-pixels to values in DmtxPackOrder enum
+PACK_ORDER = {
+   8: DmtxPackOrder.DmtxPack8bppK,
+   16: DmtxPackOrder.DmtxPack16bppRGB,
+   24: DmtxPackOrder.DmtxPack24bppRGB,
+   32: DmtxPackOrder.DmtxPack32bppRGBX,
+}
 
 
 @contextmanager
@@ -43,7 +52,7 @@ def libdmtx_image(pixels, width, height, pack):
       try:
          yield image
       finally:
-         dmtxImageDestroy(image)
+         dmtxImageDestroy(byref(image))
 
 
 @contextmanager
@@ -68,7 +77,7 @@ def libdmtx_decoder(image, shrink):
       try:
          yield decoder
       finally:
-         dmtxDecodeDestroy(decoder)
+         dmtxDecodeDestroy(byref(decoder))
 
 
 @contextmanager
@@ -87,7 +96,8 @@ def libdmtx_region(decoder, timeout):
    try:
       yield region
    finally:
-      dmtxRegionDestroy(region)
+      if region:
+         dmtxRegionDestroy(byref(region))
 
 
 @contextmanager
@@ -107,7 +117,8 @@ def libdmtx_decoded_matrix_region(decoder, region, corrections):
    try:
       yield message
    finally:
-      dmtxMessageDestroy(message)
+      if message:
+         dmtxMessageDestroy(byref(message))
 
 
 def decode(image, timeout=None, gap_size=None, shrink=1, shape=None,
@@ -134,7 +145,8 @@ def decode(image, timeout=None, gap_size=None, shrink=1, shape=None,
    """
    dmtx_timeout = None
    if timeout:
-      dmtx_timeout = dmtxTimeAdd(dmtxTimeNow(), timeout)
+      now = dmtxTimeNow()
+      dmtx_timeout = dmtxTimeAdd(now, timeout)
 
    if max_count is not None and max_count < 1:
       raise ValueError('Invalid max_count [{0}]'.format(max_count))
@@ -142,17 +154,23 @@ def decode(image, timeout=None, gap_size=None, shrink=1, shape=None,
    # Test for PIL.Image and numpy.ndarray without requiring that cv2 or PIL
    # are installed.
    if 'PIL.' in str(type(image)):
-      pixels = image.convert('RGB').tobytes()
+      pixels = image.tobytes()
       width, height = image.size[:2]
    elif 'numpy.ndarray' in str(type(image)):
-      pixels = image.tobytes()
+      pixels = image.astype('uint8').tobytes()
       height, width = image.shape[:2]
    else:
       # image should be a tuple (pixels, width, height)
       pixels, width, height = image
 
+   # Compute bits-per-pixel
+   bpp = 8 * len(pixels) / (width * height)
+   if bpp not in PACK_ORDER:
+      raise PyLibDMTXError('Unsupported bits-per-pixel [{0}]'.format(bpp))
+
+   results = []
    with libdmtx_image(
-         cast(pixels, c_ubyte_p), width, height, DmtxPackOrder.DmtxPack24bppRGB
+         cast(pixels, c_ubyte_p), width, height, PACK_ORDER[bpp]
       ) as img:
       with libdmtx_decoder(img, shrink) as decoder:
          properties = [
@@ -165,13 +183,12 @@ def decode(image, timeout=None, gap_size=None, shrink=1, shape=None,
          ]
 
          # Set only those properties with a non-False value
-         for prop, value in filter(lambda v: v[1], properties):
+         for prop, value in ((p, v) for p, v in properties if v is not None):
             dmtxDecodeSetProp(decoder, prop, value)
 
          if not corrections:
             corrections = DmtxUndefined
 
-         results = []
          while True:
             with libdmtx_region(decoder, dmtx_timeout) as region:
                # Finished file or ran out of time before finding another region
@@ -194,7 +211,6 @@ def decode(image, timeout=None, gap_size=None, shrink=1, shape=None,
                      string_at(msg.contents.output),
                      Rect(x0, y0, x1 - x0, y1 - y0)
                   ))
-
             # Stop if we've reached maximium count
             if max_count and len(results) == max_count:
                break
