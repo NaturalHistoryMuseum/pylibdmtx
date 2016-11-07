@@ -203,7 +203,7 @@ class DmtxDecode(Structure):
 
         ('cache', c_ubyte_p),
         ('image', POINTER(DmtxImage)),
-        ('grid', POINTER(DmtxScanGrid)),
+        ('grid', DmtxScanGrid),
     ]
 
 
