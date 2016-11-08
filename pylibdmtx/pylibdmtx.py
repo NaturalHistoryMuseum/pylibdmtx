@@ -155,7 +155,7 @@ def decode(image, timeout=None, gap_size=None, shrink=1, shape=None,
     # are installed.
     if 'PIL.' in str(type(image)):
         pixels = image.tobytes()
-        width, height = image.size[:2]
+        width, height = image.size
     elif 'numpy.ndarray' in str(type(image)):
         pixels = image.astype('uint8').tobytes()
         height, width = image.shape[:2]
