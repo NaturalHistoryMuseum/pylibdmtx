@@ -4,7 +4,7 @@ import platform
 import sys
 
 from ctypes import (
-    addressof, cdll, c_char_p, c_double, c_int, c_long, c_size_t, c_ubyte,
+    addressof, cdll, c_double, c_int, c_long, c_size_t, c_ubyte,
     c_uint, c_ulong, c_ulonglong, Structure, CFUNCTYPE, pointer, POINTER
 )
 from ctypes.util import find_library
