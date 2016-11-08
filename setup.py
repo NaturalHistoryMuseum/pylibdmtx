@@ -44,7 +44,7 @@ setup_data = {
         ],
     },
     'tests_require': [
-        # TODO How to specify OpenCV? 'cv2>=2.4.8,<3',
+        # TODO How to specify OpenCV? 'cv2>=2.4.8',
         'nose>=1.3.4',
         PILLOW
     ],
@@ -69,7 +69,7 @@ if 'bdist_wheel' in sys.argv and ('--plat-name=win32' in sys.argv or '--plat-nam
         '32' if '--plat-name=win32' in sys.argv else '64'
     )
     data_files = setup_data.get('data_files', [])
-    data_files.append(('', ['libdmtx-LICENSE.txt', '{0}'.format(dll)]))
+    data_files.append(('', ['libdmtx-LICENSE.txt', dll]))
     setup_data['data_files'] = data_files
 
 
