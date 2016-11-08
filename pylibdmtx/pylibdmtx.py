@@ -157,7 +157,9 @@ def decode(image, timeout=None, gap_size=None, shrink=1, shape=None,
         pixels = image.tobytes()
         width, height = image.size
     elif 'numpy.ndarray' in str(type(image)):
-        pixels = image.astype('uint8').tobytes()
+        if 'uint8' != str(image.dtype):
+            image = image.astype('uint8')
+        pixels = image.tobytes()
         height, width = image.shape[:2]
     else:
         # image should be a tuple (pixels, width, height)
