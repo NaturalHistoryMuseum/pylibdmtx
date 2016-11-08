@@ -30,20 +30,20 @@ PACK_ORDER = {
 
 @contextmanager
 def libdmtx_image(pixels, width, height, pack):
-    """A context manager for `DmtxImage`, created and destoyed by
+    """A context manager for `DmtxImage`, created and destroyed by
     `dmtxImageCreate` and `dmtxImageDestroy`.
 
     Args:
-    pixels (:obj:):
-    width (int):
-    height (int):
-    pack (int):
+        pixels (:obj:):
+        width (int):
+        height (int):
+        pack (int):
 
     Yields:
-    DmtxImage: The created image
+        DmtxImage: The created image
 
     Raises:
-    PyLibDMTXError: If the image could not be created.
+        PyLibDMTXError: If the image could not be created.
     """
     image = dmtxImageCreate(pixels, width, height, pack)
     if not image:
@@ -57,18 +57,18 @@ def libdmtx_image(pixels, width, height, pack):
 
 @contextmanager
 def libdmtx_decoder(image, shrink):
-    """A context manager for `DmtxDecode`, created and destoyed by
+    """A context manager for `DmtxDecode`, created and destroyed by
     `dmtxDecodeCreate` and `dmtxDecodeDestroy`.
 
     Args:
-    image (DmtxImage):
-    shrink (int):
+        image (DmtxImage):
+        shrink (int):
 
     Yields:
-    DmtxDecode: The created image
+        DmtxDecode: The created decoder
 
     Raises:
-    PyLibDMTXError: If the decoder could not be created.
+        PyLibDMTXError: If the decoder could not be created.
     """
     decoder = dmtxDecodeCreate(image, shrink)
     if not decoder:
@@ -82,15 +82,15 @@ def libdmtx_decoder(image, shrink):
 
 @contextmanager
 def libdmtx_region(decoder, timeout):
-    """A context manager for `DmtxRegion`, created and destoyed by
+    """A context manager for `DmtxRegion`, created and destroyed by
     `dmtxRegionFindNext` and `dmtxRegionDestroy`.
 
     Args:
-    decoder (DmtxDecode):
-    timeout (int or None):
+        decoder (DmtxDecode):
+        timeout (int or None):
 
     Yields:
-    DmtxRegion: The next region or None, if all regions have been found.
+        DmtxRegion: The next region or None, if all regions have been found.
     """
     region = dmtxRegionFindNext(decoder, timeout)
     try:
@@ -106,12 +106,12 @@ def libdmtx_decoded_matrix_region(decoder, region, corrections):
     `dmtxDecodeMatrixRegion` and `dmtxMessageDestroy`.
 
     Args:
-    decoder (DmtxDecode):
-    region (DmtxRegion):
-    corrections (int):
+        decoder (DmtxDecode):
+        region (DmtxRegion):
+        corrections (int):
 
     Yields:
-    DmtxMessage: The message.
+        DmtxMessage: The message.
     """
     message = dmtxDecodeMatrixRegion(decoder, region, corrections)
     try:
@@ -127,21 +127,21 @@ def decode(image, timeout=None, gap_size=None, shrink=1, shape=None,
     """Decodes datamatrix barcodes in `image`.
 
     Args:
-    image: numpy.ndarray, PIL.Image or tuple (pixels, width, height)
-    timeout (int): milliseconds
-    gap_size (int):
-    shrink (int):
-    shape (int):
-    deviation (int):
-    threshold (int):
-    min_edge (int):
-    max_edge (int):
-    corrections (int):
-    max_count (int): stop after reading this many barcodes. `None` to read as
-    many as possible.
+        image: `numpy.ndarray`, `PIL.Image` or tuple (pixels, width, height)
+        timeout (int): milliseconds
+        gap_size (int):
+        shrink (int):
+        shape (int):
+        deviation (int):
+        threshold (int):
+        min_edge (int):
+        max_edge (int):
+        corrections (int):
+        max_count (int): stop after reading this many barcodes. `None` to read
+            as many as possible.
 
-    Yields:
-    :obj:`list` of :obj:`Decoded`: The values decoded from barcodes.
+    Returns:
+        :obj:`list` of :obj:`Decoded`: The values decoded from barcodes.
     """
     dmtx_timeout = None
     if timeout:
