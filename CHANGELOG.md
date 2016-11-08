@@ -1,3 +1,7 @@
+### v0.1.3
+
+* #3 Convert images only as required
+
 ### v0.1.2
 
 * #1 Incorrect handling of bits-per-pixels
