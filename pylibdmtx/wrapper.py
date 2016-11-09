@@ -4,8 +4,8 @@ import platform
 import sys
 
 from ctypes import (
-    addressof, cdll, c_double, c_int, c_long, c_size_t, c_ubyte,
-    c_uint, c_ulong, c_ulonglong, Structure, CFUNCTYPE, pointer, POINTER
+    cdll, c_double, c_int, c_long, c_size_t, c_ubyte, c_uint, c_ulong,
+    c_ulonglong, Structure, CFUNCTYPE, POINTER
 )
 from ctypes.util import find_library
 from enum import IntEnum, unique
@@ -84,6 +84,7 @@ class DmtxFlip(IntEnum):
 # Types
 DmtxPassFail = c_uint
 DmtxMatrix3 = c_double * 3 * 3
+
 
 # Structs
 class DmtxMessage(Structure):
@@ -252,35 +253,50 @@ class DmtxRegion(Structure):
     ]
 
 
-
+# Globals populated in load_libdmtx
 LIBDMTX = None
+"""ctypes.CDLL
+"""
+
+EXTERNAL_DEPENDENCIES = []
+"""Sequence of instances of ctypes.CDLL
+"""
+
 
 def load_libdmtx():
+    """Loads the libdmtx shared library and its dependencies.
+    """
     global LIBDMTX
+    global EXTERNAL_DEPENDENCIES
     if not LIBDMTX:
-        sysname = platform.system()
-        if 'Windows' == sysname:
-            # Assume a DLL that is on sys.path. The DLL is specific to the bit
-            # depth of interpreter.
-            fname = 'libdmtx-{0}.dll'.format(
-                '64' if sys.maxsize > 2**32 else '32'
-            )
-            for dir in sys.path:
-                try:
-                    LIBDMTX = cdll.LoadLibrary(str(Path(dir).joinpath(fname)))
-                except OSError as e:
-                    pass
-                else:
-                    # Sucessfully loaded the DLL
-                    break
-            else:
-                raise ImportError('Unable to find libdmtx DLL')
+        if 'Windows' == platform.system():
+            # Possible scenarios here
+            #   1. Run from source, DLLs are in pyzbar directory
+            #       cdll.LoadLibrary() imports DLLs in repo root directory
+            #   2. Wheel install into CPython installation
+            #       cdll.LoadLibrary() imports DLLs in package directory
+            #   3. Wheel install into virtualenv
+            #       cdll.LoadLibrary() imports DLLs in package directory
+            #   4. Frozen
+            #       cdll.LoadLibrary() imports DLLs alongside executable
+
+            # The DLL is specific to the bit depth of interpreter
+            fname = 'libdmtx-64.dll' if sys.maxsize > 2**32 else 'libdmtx-32.dll'
+            try:
+                libdmtx = cdll.LoadLibrary(fname)
+            except OSError as e:
+                libdmtx = cdll.LoadLibrary(
+                    str(Path(__file__).parent.joinpath(fname))
+                )
         else:
-            # Assume a shared library on the path.
+            # Assume a shared library on the path
             path = find_library('dmtx')
             if not path:
                 raise ImportError('Unable to find dmtx shared library')
-            LIBDMTX = cdll.LoadLibrary(path)
+            libdmtx = cdll.LoadLibrary(path)
+
+        LIBDMTX = libdmtx
+        EXTERNAL_DEPENDENCIES = [LIBDMTX]
 
     return LIBDMTX
 

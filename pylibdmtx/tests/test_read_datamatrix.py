@@ -26,6 +26,7 @@ def capture_stdout():
 
 class TestReadDatamatrix(unittest.TestCase):
     def test_read_datamatrix(self):
+        "Read datamatrix barcodes"
         with capture_stdout() as stdout:
             main([str(Path(__file__).parent.joinpath('datamatrix.png'))])
 
