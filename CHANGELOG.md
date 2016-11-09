@@ -1,3 +1,7 @@
+### v0.1.4
+
+* #5 Better handling of DLLs
+
 ### v0.1.3
 
 * #3 Convert images only as required

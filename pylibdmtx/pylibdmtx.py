@@ -1,4 +1,5 @@
 from __future__ import print_function
+
 from collections import namedtuple
 from contextlib import contextmanager
 from ctypes import byref, cast, string_at
@@ -8,9 +9,11 @@ from .wrapper import (
     c_ubyte_p, dmtxImageCreate, dmtxImageDestroy, dmtxDecodeCreate,
     dmtxDecodeDestroy, dmtxRegionDestroy, dmtxMessageDestroy, dmtxTimeAdd,
     dmtxTimeNow, dmtxDecodeMatrixRegion, dmtxRegionFindNext,
-    dmtxMatrix3VMultiplyBy, dmtxDecodeSetProp,
-    DmtxFlip, DmtxPackOrder, DmtxProperty, DmtxUndefined, DmtxVector2
+    dmtxMatrix3VMultiplyBy, dmtxDecodeSetProp, DmtxPackOrder, DmtxProperty,
+    DmtxUndefined, DmtxVector2, EXTERNAL_DEPENDENCIES
 )
+
+__all__ = ['decode', 'EXTERNAL_DEPENDENCIES']
 
 
 # A rectangle

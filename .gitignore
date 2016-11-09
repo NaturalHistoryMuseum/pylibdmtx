@@ -7,3 +7,4 @@ dist
 README.rst
 .coverage
 *dll
+MANIFEST.in

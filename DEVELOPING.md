@@ -28,11 +28,12 @@ tox
 ### Windows
 
 Save the 32-bit and 64-bit `libdmtx.dll` files to `libdmtx-32.dll` and
-`libdmtx-64.dll` respectively, in the root of this repo.
-The `load_libdmtx` function in `wrapper.py` looks for the appropriate `DLL`
-on `sys.path`. The appropriate `DLL` is packaged up into the wheel build,
-then installed to the root of the virtual env. This strategy allows
-the same method to be used when `pylibdmtx` is run from source, as an installed package and when included in a frozen binary.
+`libdmtx-64.dll` respectively, in the `pylibdmtx` directory.
+The `load_pylibdmtx` function in `wrapper.py` looks for the appropriate `DLL`s.
+The appropriate `DLL` is packaged up into the wheel build and is installed
+alongside the package source. This strategy allows the same method to be used
+when `pylibdmtx` is run from source, as an installed package and when included
+in a frozen binary.
 
 ## Releasing
 
@@ -45,15 +46,24 @@ brew install pandoc
 
 2. Build
     Generate the `reStructuredText README.rst` from `README.md` and create
-    source and wheel builds. The `win32` and `win_amd64` will contain the
+    source and wheel builds. The `win32` and `win_amd64` wheels will contain the
     appropriate `libdmtx.dll`.
 
     ```
     pandoc --from=markdown --to=rst README.md -o README.rst
-    rm -rf build dist
+    rm -rf build dist MANIFEST.in pylibdmtx.egg-info
+    cp MANIFEST.in.all MANIFEST.in
     ./setup.py bdist_wheel
+
+    cat MANIFEST.in.all MANIFEST.in.win32 > MANIFEST.in
     ./setup.py bdist_wheel --plat-name=win32
+
+    # Remove build to prevent win32 DLL from being included in win64 build
+    rm -rf build
+    cat MANIFEST.in.all MANIFEST.in.win64 > MANIFEST.in
     ./setup.py bdist_wheel --plat-name=win_amd64
+
+    rm -rf build MANIFEST.in pylibdmtx.egg-info
     ```
 
 3. Release to pypitest (see https://wiki.python.org/moin/TestPyPI for details)

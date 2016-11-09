@@ -1,0 +1,2 @@
+include pylibdmtx/libdmtx-32.dll
+include pylibdmtx/libdmtx-LICENSE.txt
