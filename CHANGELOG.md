@@ -1,3 +1,7 @@
+### v0.1.5
+
+* #7 Support older numpy
+
 ### v0.1.4
 
 * #5 Better handling of DLLs
