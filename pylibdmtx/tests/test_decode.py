@@ -2,6 +2,8 @@ import unittest
 
 from pathlib import Path
 
+import numpy as np
+
 from PIL import Image
 
 try:
@@ -57,6 +59,11 @@ class TestDecode(unittest.TestCase):
         res = decode(self.empty)
         expected = []
         self.assertEqual(expected, res)
+
+    def test_decode_numpy(self):
+        "Read image using Pillow and convert to numpy.ndarray"
+        res = decode(np.asarray(self.datamatrix))
+        self.assertEqual(self.EXPECTED, res)
 
     @unittest.skipIf(cv2 is None, 'OpenCV not installed')
     def test_decode_opencv(self):
