@@ -124,6 +124,39 @@ def libdmtx_decoded_matrix_region(decoder, region, corrections):
             dmtxMessageDestroy(byref(message))
 
 
+def decode_region(decoder, region, corrections, shrink):
+    """Decodes and returns the value in a region.
+
+    Args:
+        region (DmtxRegion):
+
+    Yields:
+        Decoded or None: The decoded value.
+    """
+    with libdmtx_decoded_matrix_region(
+        decoder, region, corrections
+    ) as msg:
+        if msg:
+            # Coordinates
+            p00 = DmtxVector2()
+            p11 = DmtxVector2(1.0, 1.0)
+            dmtxMatrix3VMultiplyBy(
+                p00,
+                region.contents.fit2raw
+            )
+            dmtxMatrix3VMultiplyBy(p11, region.contents.fit2raw)
+            x0 = int((shrink * p00.X) + 0.5)
+            y0 = int((shrink * p00.Y) + 0.5)
+            x1 = int((shrink * p11.X) + 0.5)
+            y1 = int((shrink * p11.Y) + 0.5)
+            return Decoded(
+                string_at(msg.contents.output),
+                Rect(x0, y0, x1 - x0, y1 - y0)
+            )
+        else:
+            return None
+
+
 def decode(image, timeout=None, gap_size=None, shrink=1, shape=None,
            deviation=None, threshold=None, min_edge=None, max_edge=None,
            corrections=None, max_count=None):
@@ -162,12 +195,7 @@ def decode(image, timeout=None, gap_size=None, shrink=1, shape=None,
     elif 'numpy.ndarray' in str(type(image)):
         if 'uint8' != str(image.dtype):
             image = image.astype('uint8')
-        try:
-            pixels = image.tobytes()
-        except AttributeError:
-            # `numpy.ndarray.tobytes()` introduced in `numpy` 1.9.0 - use the
-            # older `tostring` method.
-            pixels = image.tostring()
+        pixels = image.tobytes()
         height, width = image.shape[:2]
     else:
         # image should be a tuple (pixels, width, height)
@@ -205,26 +233,16 @@ def decode(image, timeout=None, gap_size=None, shrink=1, shape=None,
                     # region
                     if not region:
                         break
+                    else:
+                        # Decoded
+                        res = decode_region(
+                            decoder, region, corrections, shrink
+                        )
+                        if res:
+                            results.append(res)
 
-                    with libdmtx_decoded_matrix_region(
-                        decoder, region, corrections
-                    ) as msg:
-                        # Coordinates
-                        p00 = DmtxVector2()
-                        p11 = DmtxVector2(1.0, 1.0)
-                        dmtxMatrix3VMultiplyBy(p00, region.contents.fit2raw)
-                        dmtxMatrix3VMultiplyBy(p11, region.contents.fit2raw)
-                        x0 = int((shrink * p00.X) + 0.5)
-                        y0 = int((shrink * p00.Y) + 0.5)
-                        x1 = int((shrink * p11.X) + 0.5)
-                        y1 = int((shrink * p11.Y) + 0.5)
-                        results.append(Decoded(
-                            string_at(msg.contents.output),
-                            Rect(x0, y0, x1 - x0, y1 - y0)
-                        ))
-
-                # Stop if we've reached maximium count
-                if max_count and len(results) == max_count:
-                    break
+                            # Stop if we've reached maximium count
+                            if max_count and len(results) == max_count:
+                                break
 
     return results
