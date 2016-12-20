@@ -1,3 +1,7 @@
+### v0.1.6
+
+* #9 Check for empty decoded value
+
 ### v0.1.5
 
 * #7 Support older numpy
