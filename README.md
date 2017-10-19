@@ -70,11 +70,17 @@ You can also provide a tuple `(pixels, width, height)`
  Decoded(data='Plesiosaurus', rect=Rect(left=298, top=6, width=95, height=95))]
 ```
 
+Encoding
+
+```
+>>> w, h, bpp, pixels = encode('hello world')
+>>> img = Image.frombytes('RGB', (w, h), pixels)
+>>> img.save('dmtx.png')
+```
+
 ## Limitations
 
 Feel free to submit a PR to address any of these.
-
-* decoding only - no encoding
 
 * I took the bone-headed approach of copying the logic in
 `pydmtx`'s `decode` function
