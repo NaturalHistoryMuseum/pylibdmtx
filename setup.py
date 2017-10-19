@@ -4,7 +4,7 @@ import sys
 import pylibdmtx
 
 
-SCRIPTS = ['read_datamatrix']
+SCRIPTS = ['read_datamatrix', 'create_datamatrix']
 
 # Optional dependency
 PILLOW = 'Pillow>=3.2.0'

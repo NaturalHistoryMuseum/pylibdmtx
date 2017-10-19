@@ -1,3 +1,7 @@
+### v0.2.0
+
+* Encode support
+
 ### v0.1.6
 
 * #11 Python 3.6
