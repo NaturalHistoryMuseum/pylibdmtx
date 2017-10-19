@@ -72,6 +72,14 @@ You can also provide a tuple `(pixels, width, height)`
  Decoded(data='Plesiosaurus', rect=Rect(left=298, top=6, width=95, height=95))]
 ```
 
+The encoding function returns raw bytes:
+
+```
+>>> w, h, bpp, pixels = encode('hello world')
+>>> img = Image.frombytes('RGB', (w, h), pixels)
+>>> img.save('dmtx.png')
+```
+
 ## Windows error message
 If you see an ugly `ImportError` when importing `pylibdmtx` on Windows you will
 most likely need the
@@ -82,8 +90,6 @@ Install `vcredist_x64.exe` if using 64-bit Python, `vcredist_x86.exe` if using
 ## Limitations
 
 Feel free to submit a PR to address any of these.
-
-* decoding only - no encoding
 
 * I took the bone-headed approach of copying the logic in
 `pydmtx`'s `decode` function
