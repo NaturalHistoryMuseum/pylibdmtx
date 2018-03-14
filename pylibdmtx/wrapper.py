@@ -265,6 +265,8 @@ EXTERNAL_DEPENDENCIES = []
 
 def load_libdmtx():
     """Loads the libdmtx shared library and its dependencies.
+
+    Populates the globals LIBDMTX and EXTERNAL_DEPENDENCIES.
     """
     global LIBDMTX
     global EXTERNAL_DEPENDENCIES
@@ -281,7 +283,9 @@ def load_libdmtx():
             #       cdll.LoadLibrary() imports DLLs alongside executable
 
             # The DLL is specific to the bit depth of interpreter
-            fname = 'libdmtx-64.dll' if sys.maxsize > 2**32 else 'libdmtx-32.dll'
+            fname = (
+                'libdmtx-64.dll' if sys.maxsize > 2**32 else 'libdmtx-32.dll'
+            )
             try:
                 libdmtx = cdll.LoadLibrary(fname)
             except OSError as e:
