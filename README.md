@@ -10,8 +10,8 @@ Read Data Matrix barcodes from Python 2 and 3 using the
 
 The older
 [pydmtx](https://sourceforge.net/p/libdmtx/dmtx-wrappers/ci/master/tree/python/)
-package is stuck in Python 2.x-land. This pure-Python `ctypes`-based package
-brings `libdmtx` to Python 2.7 and to Python 3.4 or greater.
+package is stuck in Python 2.x-land. This pure-Python package uses `ctypes` to
+bring `libdmtx` to Python 2.7 and Python 3.4 or greater.
 
 ## Installation
 

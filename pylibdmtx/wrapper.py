@@ -12,6 +12,16 @@ from enum import IntEnum, unique
 from pathlib import Path
 
 
+# Globals populated in load_libdmtx
+LIBDMTX = None
+"""ctypes.CDLL
+"""
+
+EXTERNAL_DEPENDENCIES = []
+"""List of instances of ctypes.CDLL
+"""
+
+
 # Types
 c_ubyte_p = POINTER(c_ubyte)
 """unsigned char* type
@@ -253,16 +263,6 @@ class DmtxRegion(Structure):
     ]
 
 
-# Globals populated in load_libdmtx
-LIBDMTX = None
-"""ctypes.CDLL
-"""
-
-EXTERNAL_DEPENDENCIES = []
-"""Sequence of instances of ctypes.CDLL
-"""
-
-
 def load_libdmtx():
     """Loads the libdmtx shared library and its dependencies.
 
@@ -273,7 +273,7 @@ def load_libdmtx():
     if not LIBDMTX:
         if 'Windows' == platform.system():
             # Possible scenarios here
-            #   1. Run from source, DLLs are in pyzbar directory
+            #   1. Run from source, DLLs are in pylibdmtx directory
             #       cdll.LoadLibrary() imports DLLs in repo root directory
             #   2. Wheel install into CPython installation
             #       cdll.LoadLibrary() imports DLLs in package directory
