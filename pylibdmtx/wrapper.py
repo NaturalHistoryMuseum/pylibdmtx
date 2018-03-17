@@ -21,6 +21,14 @@ EXTERNAL_DEPENDENCIES = []
 """List of instances of ctypes.CDLL
 """
 
+__all__ = [
+    'DmtxUndefined', 'DmtxVector2', 'EXTERNAL_DEPENDENCIES', 'LIBDMTX',
+    'c_ubyte_p', 'dmtxImageCreate', 'dmtxImageDestroy', 'dmtxDecodeCreate',
+    'dmtxDecodeDestroy', 'dmtxRegionDestroy', 'dmtxMessageDestroy',
+    'dmtxTimeAdd', 'dmtxMatrix3VMultiplyBy', 'dmtxDecodeSetProp',
+    'DmtxPackOrder', 'DmtxProperty', 'dmtxTimeNow', 'dmtxDecodeMatrixRegion',
+    'dmtxRegionFindNext'
+]
 
 # Types
 c_ubyte_p = POINTER(c_ubyte)
@@ -288,7 +296,7 @@ def load_libdmtx():
             )
             try:
                 libdmtx = cdll.LoadLibrary(fname)
-            except OSError as e:
+            except OSError:
                 libdmtx = cdll.LoadLibrary(
                     str(Path(__file__).parent.joinpath(fname))
                 )

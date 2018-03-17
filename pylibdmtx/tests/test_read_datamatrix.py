@@ -9,9 +9,6 @@ if 2 == sys.version_info[0]:
 else:
     from io import StringIO
 
-
-from PIL import Image
-
 from pylibdmtx.scripts.read_datamatrix import main
 
 

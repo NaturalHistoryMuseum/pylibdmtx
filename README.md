@@ -7,6 +7,7 @@
 
 Read Data Matrix barcodes from Python 2 and 3 using the
 [libdmtx](http://libdmtx.sourceforge.net/) library.
+Works with PIL / Pillow images, OpenCV / numpy `ndarray`s, and raw bytes.
 
 The older
 [pydmtx](https://sourceforge.net/p/libdmtx/dmtx-wrappers/ci/master/tree/python/)
@@ -70,6 +71,14 @@ You can also provide a tuple `(pixels, width, height)`
 [Decoded(data='Stegosaurus', rect=Rect(left=5, top=6, width=96, height=95)),
  Decoded(data='Plesiosaurus', rect=Rect(left=298, top=6, width=95, height=95))]
 ```
+
+## Windows error message
+If you see an ugly `ImportError` when importing `pylibdmtx` on Windows you will
+most likely need the
+[Visual C++ Redistributable Packages for Visual Studio 2013]
+(https://www.microsoft.com/en-US/download/details.aspx?id=40784).
+Install `vcredist_x64.exe` if using 64-bit Python, `vcredist_x86.exe` if using
+32-bit Python.
 
 ## Limitations
 
