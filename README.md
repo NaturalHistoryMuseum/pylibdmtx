@@ -1,6 +1,6 @@
 # pylibdmtx
 
-[![Python Versions](https://img.shields.io/badge/python-2.7%2C%203.4%2C%203.5-blue.svg)](https://github.com/NaturalHistoryMuseum/pylibdmtx)
+[![Python Versions](https://img.shields.io/badge/python-2.7%2C%203.4%2C%203.5%2C%203.6-blue.svg)](https://github.com/NaturalHistoryMuseum/pylibdmtx)
 [![PyPI version](https://badge.fury.io/py/pylibdmtx.svg)](https://pypi.python.org/pypi/pylibdmtx/)
 [![Travis status](https://travis-ci.org/NaturalHistoryMuseum/pylibdmtx.svg?branch=master)](https://travis-ci.org/NaturalHistoryMuseum/pylibdmtx)
 [![Coverage Status](https://coveralls.io/repos/github/NaturalHistoryMuseum/pylibdmtx/badge.svg?branch=master)](https://coveralls.io/github/NaturalHistoryMuseum/pylibdmtx?branch=master)
@@ -88,7 +88,8 @@ Feel free to submit a PR to address any of these.
 
 * I took the bone-headed approach of copying the logic in
 `pydmtx`'s `decode` function
-(in [`pydmtxmodule.c`](https://sourceforge.net/p/libdmtx/dmtx-wrappers/ci/master/tree/python/)); there might be more of `libdmtx`'s functionality that could be used to read
+(in [pydmtxmodule.c](https://sourceforge.net/p/libdmtx/dmtx-wrappers/ci/master/tree/python/));
+there might be more of `libdmtx`'s functionality that could be used to read
 barcodes
 
 * I exposed the bare minimum of functions, defines, enums and typedefs

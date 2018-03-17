@@ -49,7 +49,8 @@ setup_data = {
     },
     'tests_require': [
         # TODO How to specify OpenCV? 'cv2>=2.4.8',
-        PILLOW
+        PILLOW,
+        'numpy>=1.8.2',
     ],
     'include_package_data': True,
     'classifiers': [
@@ -61,6 +62,7 @@ setup_data = {
         'Programming Language :: Python :: 3',
         'Programming Language :: Python :: 3.4',
         'Programming Language :: Python :: 3.5',
+        'Programming Language :: Python :: 3.6',
     ],
 }
 
