@@ -246,7 +246,7 @@ def decode(image, timeout=None, gap_size=None, shrink=1, shape=None,
                         if res:
                             results.append(res)
 
-                            # Stop if we've reached maximium count
+                            # Stop if we've reached maximum count
                             if max_count and len(results) == max_count:
                                 break
 
