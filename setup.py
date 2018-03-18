@@ -32,10 +32,14 @@ setup_data = {
     'long_description': readme(),
     'packages': ['pylibdmtx', 'pylibdmtx.scripts', 'pylibdmtx.tests'],
     'test_suite': 'pylibdmtx.tests',
-    'scripts': ['pylibdmtx/scripts/{0}.py'.format(script) for script in SCRIPTS],
+    'scripts': [
+        'pylibdmtx/scripts/{0}.py'.format(script) for script in SCRIPTS
+        ],
     'entry_points': {
-        'console_scripts':
-            ['{0}=pylibdmtx.scripts.{0}:main'.format(script) for script in SCRIPTS],
+        'console_scripts': [
+            '{0}=pylibdmtx.scripts.{0}:main'.format(script)
+            for script in SCRIPTS
+        ],
     },
     'extras_require': {
         ':python_version=="2.7"': ['enum34>=1.1.6', 'pathlib>=1.0.1'],

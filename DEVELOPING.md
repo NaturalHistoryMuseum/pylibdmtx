@@ -21,7 +21,7 @@ pip install tox
 If you use non-standard locations for your Python builds, make the interpreters available on the `PATH` before running `tox`.
 
 ```
-PATH=~/local/python-2.7.13/bin:~/local/python-3.4.6/bin:~/local/python-3.5.3/bin:~/local/python-3.6.0/bin:$PATH
+PATH=~/local/python-2.7.14/bin:~/local/python-3.4.7/bin:~/local/python-3.5.4/bin:~/local/python-3.6.3/bin:$PATH
 tox
 ```
 
@@ -58,8 +58,8 @@ brew install pandoc
     cat MANIFEST.in.all MANIFEST.in.win32 > MANIFEST.in
     ./setup.py bdist_wheel --plat-name=win32
 
-    # Remove build to prevent win32 DLL from being included in win64 build
-    rm -rf build
+    # Remove these dirs to prevent win32 DLL from being included in win64 build
+    rm -rf build pylibdmtx.egg-info
     cat MANIFEST.in.all MANIFEST.in.win64 > MANIFEST.in
     ./setup.py bdist_wheel --plat-name=win_amd64
 

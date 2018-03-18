@@ -5,12 +5,14 @@
 [![Travis status](https://travis-ci.org/NaturalHistoryMuseum/pylibdmtx.svg?branch=master)](https://travis-ci.org/NaturalHistoryMuseum/pylibdmtx)
 [![Coverage Status](https://coveralls.io/repos/github/NaturalHistoryMuseum/pylibdmtx/badge.svg?branch=master)](https://coveralls.io/github/NaturalHistoryMuseum/pylibdmtx?branch=master)
 
-A `ctypes`-based Python wrapper around the [libdmtx](http://libdmtx.sourceforge.net/)
-datamatrix barcode reader.
+Read Data Matrix barcodes from Python 2 and 3 using the
+[libdmtx](http://libdmtx.sourceforge.net/) library.
+Works with PIL / Pillow images, OpenCV / numpy `ndarray`s, and raw bytes.
 
-The [pydmtx](https://sourceforge.net/p/libdmtx/dmtx-wrappers/ci/master/tree/python/)
-wrapper is stuck in Python 2.x-land. This `ctypes`-based wrapper brings
-`libdmtx` to Python 2.7 and to Python 3.4 or greater.
+The older
+[pydmtx](https://sourceforge.net/p/libdmtx/dmtx-wrappers/ci/master/tree/python/)
+package is stuck in Python 2.x-land. This pure-Python package uses `ctypes` to
+bring `libdmtx` to Python 2.7 and Python 3.4 or greater.
 
 ## Installation
 
@@ -18,13 +20,13 @@ The `libdmtx` `DLL`s are included with the Windows Python wheels.
 On other operating systems, you will need to install the `libdmtx` shared
 library.
 
-On Mac OS X:
+Mac OS X:
 
 ```
 brew install libdmtx
 ```
 
-On Linux:
+Linux:
 
 ```
 sudo apt-get install libdmtx0a
@@ -69,6 +71,14 @@ You can also provide a tuple `(pixels, width, height)`
 [Decoded(data='Stegosaurus', rect=Rect(left=5, top=6, width=96, height=95)),
  Decoded(data='Plesiosaurus', rect=Rect(left=298, top=6, width=95, height=95))]
 ```
+
+## Windows error message
+If you see an ugly `ImportError` when importing `pylibdmtx` on Windows you will
+most likely need the
+[Visual C++ Redistributable Packages for Visual Studio 2013]
+(https://www.microsoft.com/en-US/download/details.aspx?id=40784).
+Install `vcredist_x64.exe` if using 64-bit Python, `vcredist_x86.exe` if using
+32-bit Python.
 
 ## Limitations
 

@@ -64,11 +64,11 @@ def libdmtx_decoder(image, shrink):
     `dmtxDecodeCreate` and `dmtxDecodeDestroy`.
 
     Args:
-        image (DmtxImage):
+        image (POINTER(DmtxImage)):
         shrink (int):
 
     Yields:
-        DmtxDecode: The created decoder
+        POINTER(DmtxDecode): The created decoder
 
     Raises:
         PyLibDMTXError: If the decoder could not be created.
@@ -89,7 +89,7 @@ def libdmtx_region(decoder, timeout):
     `dmtxRegionFindNext` and `dmtxRegionDestroy`.
 
     Args:
-        decoder (DmtxDecode):
+        decoder (POINTER(DmtxDecode)):
         timeout (int or None):
 
     Yields:
@@ -109,8 +109,8 @@ def libdmtx_decoded_matrix_region(decoder, region, corrections):
     `dmtxDecodeMatrixRegion` and `dmtxMessageDestroy`.
 
     Args:
-        decoder (DmtxDecode):
-        region (DmtxRegion):
+        decoder (POINTER(DmtxDecode)):
+        region (POINTER(DmtxRegion)):
         corrections (int):
 
     Yields:
@@ -246,7 +246,7 @@ def decode(image, timeout=None, gap_size=None, shrink=1, shape=None,
                         if res:
                             results.append(res)
 
-                            # Stop if we've reached maximium count
+                            # Stop if we've reached maximum count
                             if max_count and len(results) == max_count:
                                 break
 

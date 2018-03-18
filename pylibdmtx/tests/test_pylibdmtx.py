@@ -2,6 +2,12 @@ import unittest
 
 from pathlib import Path
 
+try:
+    from unittest.mock import call, patch
+except ImportError:
+    # Python 2
+    from mock import call, patch
+
 import numpy as np
 
 from PIL import Image
@@ -11,8 +17,9 @@ try:
 except ImportError:
     cv2 = None
 
-
-from pylibdmtx.pylibdmtx import decode, Decoded, Rect, EXTERNAL_DEPENDENCIES
+from pylibdmtx.pylibdmtx import (
+    decode, Decoded, Rect, PyLibDMTXError, EXTERNAL_DEPENDENCIES
+)
 
 
 TESTDATA = Path(__file__).parent
@@ -77,6 +84,18 @@ class TestDecode(unittest.TestCase):
         "External dependencies"
         self.assertEqual(1, len(EXTERNAL_DEPENDENCIES))
         self.assertIn('libdmtx', EXTERNAL_DEPENDENCIES[0]._name)
+
+    @patch('pylibdmtx.pylibdmtx.dmtxImageCreate')
+    def test_dmtxImageCreate_failed(self, dmtxImageCreate):
+        dmtxImageCreate.return_value = None
+        self.assertRaises(PyLibDMTXError, decode, self.datamatrix)
+        self.assertEqual(1, dmtxImageCreate.call_count)
+
+    @patch('pylibdmtx.pylibdmtx.dmtxDecodeCreate')
+    def test_dmtxDecodeCreate_failed(self, dmtxDecodeCreate):
+        dmtxDecodeCreate.return_value = None
+        self.assertRaises(PyLibDMTXError, decode, self.datamatrix)
+        self.assertEqual(1, dmtxDecodeCreate.call_count)
 
 
 if __name__ == '__main__':
