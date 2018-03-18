@@ -1,3 +1,3 @@
-"""A ctypes-based wrapper around the libdmtx datamatrix barcode reader."""
+"""Read Data Matrix barcodes from Python 2 and 3."""
 
 __version__ = '0.1.7'
