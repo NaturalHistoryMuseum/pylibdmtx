@@ -71,7 +71,6 @@ brew install pandoc
     ```
     mkvirtualenv pypi
     pip install twine
-    twine register -r pypitest dist/pylibdmtx-0.1.1-py2.py3-none-any.whl
     twine upload -r pypitest dist/*
     ```
 
@@ -117,7 +116,6 @@ brew install pandoc
 5. If all is well, release to PyPI
 
     ```
-    twine register dist/pylibdmtx-0.1.1-py2.py3-none-any.whl
     twine upload dist/*
     ```
 
