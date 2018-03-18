@@ -1,16 +1,22 @@
 """Low-level wrapper around libdmtx's interface
 """
-import platform
-import sys
-
 from ctypes import (
     cdll, c_double, c_int, c_long, c_size_t, c_ubyte, c_uint, c_ulong,
     c_ulonglong, Structure, CFUNCTYPE, POINTER
 )
-from ctypes.util import find_library
 from enum import IntEnum, unique
-from pathlib import Path
 
+from . import dmtx_library
+
+
+__all__ = [
+    'DmtxPassFail', 'DmtxUndefined', 'DmtxVector2', 'EXTERNAL_DEPENDENCIES',
+    'LIBDMTX', 'c_ubyte_p', 'dmtxImageCreate', 'dmtxImageDestroy',
+    'dmtxDecodeCreate', 'dmtxDecodeDestroy', 'dmtxRegionDestroy',
+    'dmtxMessageDestroy', 'dmtxTimeAdd', 'dmtxMatrix3VMultiplyBy',
+    'dmtxDecodeSetProp', 'DmtxPackOrder', 'DmtxProperty', 'dmtxTimeNow',
+    'dmtxDecodeMatrixRegion', 'dmtxRegionFindNext'
+]
 
 # Globals populated in load_libdmtx
 LIBDMTX = None
@@ -18,17 +24,8 @@ LIBDMTX = None
 """
 
 EXTERNAL_DEPENDENCIES = []
-"""List of instances of ctypes.CDLL
+"""List of instances of ctypes.CDLL. Helpful when freezing.
 """
-
-__all__ = [
-    'DmtxUndefined', 'DmtxVector2', 'EXTERNAL_DEPENDENCIES', 'LIBDMTX',
-    'c_ubyte_p', 'dmtxImageCreate', 'dmtxImageDestroy', 'dmtxDecodeCreate',
-    'dmtxDecodeDestroy', 'dmtxRegionDestroy', 'dmtxMessageDestroy',
-    'dmtxTimeAdd', 'dmtxMatrix3VMultiplyBy', 'dmtxDecodeSetProp',
-    'DmtxPackOrder', 'DmtxProperty', 'dmtxTimeNow', 'dmtxDecodeMatrixRegion',
-    'dmtxRegionFindNext'
-]
 
 # Types
 c_ubyte_p = POINTER(c_ubyte)
@@ -41,62 +38,62 @@ DmtxUndefined = -1
 
 @unique
 class DmtxProperty(IntEnum):
-    DmtxPropScheme            = 100
-    DmtxPropSizeRequest       = 101
-    DmtxPropMarginSize        = 102
-    DmtxPropModuleSize        = 103
+    DmtxPropScheme = 100
+    DmtxPropSizeRequest = 101
+    DmtxPropMarginSize = 102
+    DmtxPropModuleSize = 103
     # Decoding properties
-    DmtxPropEdgeMin           = 200
-    DmtxPropEdgeMax           = 201
-    DmtxPropScanGap           = 202
-    DmtxPropSquareDevn        = 203
-    DmtxPropSymbolSize        = 204
-    DmtxPropEdgeThresh        = 205
+    DmtxPropEdgeMin = 200
+    DmtxPropEdgeMax = 201
+    DmtxPropScanGap = 202
+    DmtxPropSquareDevn = 203
+    DmtxPropSymbolSize = 204
+    DmtxPropEdgeThresh = 205
     # Image properties
-    DmtxPropWidth             = 300
-    DmtxPropHeight            = 301
-    DmtxPropPixelPacking      = 302
-    DmtxPropBitsPerPixel      = 303
-    DmtxPropBytesPerPixel     = 304
-    DmtxPropRowPadBytes       = 305
-    DmtxPropRowSizeBytes      = 306
-    DmtxPropImageFlip         = 307
-    DmtxPropChannelCount      = 308
+    DmtxPropWidth = 300
+    DmtxPropHeight = 301
+    DmtxPropPixelPacking = 302
+    DmtxPropBitsPerPixel = 303
+    DmtxPropBytesPerPixel = 304
+    DmtxPropRowPadBytes = 305
+    DmtxPropRowSizeBytes = 306
+    DmtxPropImageFlip = 307
+    DmtxPropChannelCount = 308
     # Image modifiers
-    DmtxPropXmin              = 400
-    DmtxPropXmax              = 401
-    DmtxPropYmin              = 402
-    DmtxPropYmax              = 403
-    DmtxPropScale             = 404
+    DmtxPropXmin = 400
+    DmtxPropXmax = 401
+    DmtxPropYmin = 402
+    DmtxPropYmax = 403
+    DmtxPropScale = 404
 
 
 @unique
 class DmtxPackOrder(IntEnum):
-    DmtxPackCustom            = 100
-    DmtxPack1bppK             = 200
-    DmtxPack8bppK             = 300
-    DmtxPack16bppRGB          = 400
-    DmtxPack16bppRGBX         = 401
-    DmtxPack16bppXRGB         = 402
-    DmtxPack16bppBGR          = 403
-    DmtxPack16bppBGRX         = 404
-    DmtxPack16bppXBGR         = 405
-    DmtxPack16bppYCbCr        = 406
-    DmtxPack24bppRGB          = 500
-    DmtxPack24bppBGR          = 501
-    DmtxPack24bppYCbCr        = 502
-    DmtxPack32bppRGBX         = 600
-    DmtxPack32bppXRGB         = 601
-    DmtxPack32bppBGRX         = 602
-    DmtxPack32bppXBGR         = 603
-    DmtxPack32bppCMYK         = 604
+    DmtxPackCustom = 100
+    DmtxPack1bppK = 200
+    DmtxPack8bppK = 300
+    DmtxPack16bppRGB = 400
+    DmtxPack16bppRGBX = 401
+    DmtxPack16bppXRGB = 402
+    DmtxPack16bppBGR = 403
+    DmtxPack16bppBGRX = 404
+    DmtxPack16bppXBGR = 405
+    DmtxPack16bppYCbCr = 406
+    DmtxPack24bppRGB = 500
+    DmtxPack24bppBGR = 501
+    DmtxPack24bppYCbCr = 502
+    DmtxPack32bppRGBX = 600
+    DmtxPack32bppXRGB = 601
+    DmtxPack32bppBGRX = 602
+    DmtxPack32bppXBGR = 603
+    DmtxPack32bppCMYK = 604
 
 
 @unique
 class DmtxFlip(IntEnum):
-    DmtxFlipNone               = 0x00
-    DmtxFlipX                  = 0x01 << 0
-    DmtxFlipY                  = 0x01 << 1
+    DmtxFlipNone = 0x00
+    DmtxFlipX = 0x01 << 0
+    DmtxFlipY = 0x01 << 1
 
 
 # Types
@@ -272,42 +269,14 @@ class DmtxRegion(Structure):
 
 
 def load_libdmtx():
-    """Loads the libdmtx shared library and its dependencies.
+    """Loads the libdmtx shared library.
 
     Populates the globals LIBDMTX and EXTERNAL_DEPENDENCIES.
     """
     global LIBDMTX
     global EXTERNAL_DEPENDENCIES
     if not LIBDMTX:
-        if 'Windows' == platform.system():
-            # Possible scenarios here
-            #   1. Run from source, DLLs are in pylibdmtx directory
-            #       cdll.LoadLibrary() imports DLLs in repo root directory
-            #   2. Wheel install into CPython installation
-            #       cdll.LoadLibrary() imports DLLs in package directory
-            #   3. Wheel install into virtualenv
-            #       cdll.LoadLibrary() imports DLLs in package directory
-            #   4. Frozen
-            #       cdll.LoadLibrary() imports DLLs alongside executable
-
-            # The DLL is specific to the bit depth of interpreter
-            fname = (
-                'libdmtx-64.dll' if sys.maxsize > 2**32 else 'libdmtx-32.dll'
-            )
-            try:
-                libdmtx = cdll.LoadLibrary(fname)
-            except OSError:
-                libdmtx = cdll.LoadLibrary(
-                    str(Path(__file__).parent.joinpath(fname))
-                )
-        else:
-            # Assume a shared library on the path
-            path = find_library('dmtx')
-            if not path:
-                raise ImportError('Unable to find dmtx shared library')
-            libdmtx = cdll.LoadLibrary(path)
-
-        LIBDMTX = libdmtx
+        LIBDMTX = dmtx_library.load()
         EXTERNAL_DEPENDENCIES = [LIBDMTX]
 
     return LIBDMTX
