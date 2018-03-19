@@ -23,7 +23,7 @@ Rect = namedtuple('Rect', ['left', 'top', 'width', 'height'])
 Decoded = namedtuple('Decoded', ['data', 'rect'])
 
 # Crude mapping from bits-per-pixels to values in DmtxPackOrder enum
-PACK_ORDER = {
+_PACK_ORDER = {
     8: DmtxPackOrder.DmtxPack8bppK,
     16: DmtxPackOrder.DmtxPack16bppRGB,
     24: DmtxPackOrder.DmtxPack24bppRGB,
@@ -32,7 +32,7 @@ PACK_ORDER = {
 
 
 @contextmanager
-def libdmtx_image(pixels, width, height, pack):
+def _image(pixels, width, height, pack):
     """A context manager for `DmtxImage`, created and destroyed by
     `dmtxImageCreate` and `dmtxImageDestroy`.
 
@@ -59,7 +59,7 @@ def libdmtx_image(pixels, width, height, pack):
 
 
 @contextmanager
-def libdmtx_decoder(image, shrink):
+def _decoder(image, shrink):
     """A context manager for `DmtxDecode`, created and destroyed by
     `dmtxDecodeCreate` and `dmtxDecodeDestroy`.
 
@@ -84,7 +84,7 @@ def libdmtx_decoder(image, shrink):
 
 
 @contextmanager
-def libdmtx_region(decoder, timeout):
+def _region(decoder, timeout):
     """A context manager for `DmtxRegion`, created and destroyed by
     `dmtxRegionFindNext` and `dmtxRegionDestroy`.
 
@@ -104,7 +104,7 @@ def libdmtx_region(decoder, timeout):
 
 
 @contextmanager
-def libdmtx_decoded_matrix_region(decoder, region, corrections):
+def _decoded_matrix_region(decoder, region, corrections):
     """A context manager for `DmtxMessage`, created and destoyed by
     `dmtxDecodeMatrixRegion` and `dmtxMessageDestroy`.
 
@@ -124,7 +124,7 @@ def libdmtx_decoded_matrix_region(decoder, region, corrections):
             dmtxMessageDestroy(byref(message))
 
 
-def decode_region(decoder, region, corrections, shrink):
+def _decode_region(decoder, region, corrections, shrink):
     """Decodes and returns the value in a region.
 
     Args:
@@ -133,9 +133,7 @@ def decode_region(decoder, region, corrections, shrink):
     Yields:
         Decoded or None: The decoded value.
     """
-    with libdmtx_decoded_matrix_region(
-        decoder, region, corrections
-    ) as msg:
+    with _decoded_matrix_region(decoder, region, corrections) as msg:
         if msg:
             # Coordinates
             p00 = DmtxVector2()
@@ -155,6 +153,51 @@ def decode_region(decoder, region, corrections, shrink):
             )
         else:
             return None
+
+
+def _pixel_data(image):
+    """Returns (pixels, width, height, bpp)
+
+    Returns:
+        :obj: `tuple` (pixels, width, height, bpp)
+    """
+    # Test for PIL.Image and numpy.ndarray without requiring that cv2 or PIL
+    # are installed.
+    if 'PIL.' in str(type(image)):
+        pixels = image.tobytes()
+        width, height = image.size
+    elif 'numpy.ndarray' in str(type(image)):
+        if 'uint8' != str(image.dtype):
+            image = image.astype('uint8')
+        try:
+            pixels = image.tobytes()
+        except AttributeError:
+            # `numpy.ndarray.tobytes()` introduced in `numpy` 1.9.0 - use the
+            # older `tostring` method.
+            pixels = image.tostring()
+        height, width = image.shape[:2]
+    else:
+        # image should be a tuple (pixels, width, height)
+        pixels, width, height = image
+
+        # Check dimensions
+        if 0 != len(pixels) % (width * height):
+            raise PyLibDMTXError((
+                    'Inconsistent dimensions: image data of {0} bytes is not '
+                    'divisible by (width x height = {1})'
+                ).format(len(pixels), (width * height))
+            )
+
+    # Compute bits-per-pixel
+    bpp = 8 * len(pixels) // (width * height)
+    if bpp not in _PACK_ORDER:
+        raise PyLibDMTXError(
+            'Unsupported bits-per-pixel: [{0}] Should be one of {1}'.format(
+                bpp, sorted(_PACK_ORDER.keys())
+            )
+        )
+
+    return pixels, width, height, bpp
 
 
 def decode(image, timeout=None, gap_size=None, shrink=1, shape=None,
@@ -187,35 +230,13 @@ def decode(image, timeout=None, gap_size=None, shrink=1, shape=None,
     if max_count is not None and max_count < 1:
         raise ValueError('Invalid max_count [{0}]'.format(max_count))
 
-    # Test for PIL.Image and numpy.ndarray without requiring that cv2 or PIL
-    # are installed.
-    if 'PIL.' in str(type(image)):
-        pixels = image.tobytes()
-        width, height = image.size
-    elif 'numpy.ndarray' in str(type(image)):
-        if 'uint8' != str(image.dtype):
-            image = image.astype('uint8')
-        try:
-            pixels = image.tobytes()
-        except AttributeError:
-            # `numpy.ndarray.tobytes()` introduced in `numpy` 1.9.0 - use the
-            # older `tostring` method.
-            pixels = image.tostring()
-        height, width = image.shape[:2]
-    else:
-        # image should be a tuple (pixels, width, height)
-        pixels, width, height = image
-
-    # Compute bits-per-pixel
-    bpp = 8 * len(pixels) / (width * height)
-    if bpp not in PACK_ORDER:
-        raise PyLibDMTXError('Unsupported bits-per-pixel [{0}]'.format(bpp))
+    pixels, width, height, bpp = _pixel_data(image)
 
     results = []
-    with libdmtx_image(
-        cast(pixels, c_ubyte_p), width, height, PACK_ORDER[bpp]
+    with _image(
+        cast(pixels, c_ubyte_p), width, height, _PACK_ORDER[bpp]
     ) as img:
-        with libdmtx_decoder(img, shrink) as decoder:
+        with _decoder(img, shrink) as decoder:
             properties = [
                 (DmtxProperty.DmtxPropScanGap, gap_size),
                 (DmtxProperty.DmtxPropSymbolSize, shape),
@@ -225,7 +246,7 @@ def decode(image, timeout=None, gap_size=None, shrink=1, shape=None,
                 (DmtxProperty.DmtxPropEdgeMax, max_edge)
             ]
 
-            # Set only those properties with a non-False value
+            # Set only those properties with a non-None value
             for prop, value in ((p, v) for p, v in properties if v is not None):
                 dmtxDecodeSetProp(decoder, prop, value)
 
@@ -233,14 +254,14 @@ def decode(image, timeout=None, gap_size=None, shrink=1, shape=None,
                 corrections = DmtxUndefined
 
             while True:
-                with libdmtx_region(decoder, dmtx_timeout) as region:
+                with _region(decoder, dmtx_timeout) as region:
                     # Finished file or ran out of time before finding another
                     # region
                     if not region:
                         break
                     else:
                         # Decoded
-                        res = decode_region(
+                        res = _decode_region(
                             decoder, region, corrections, shrink
                         )
                         if res:

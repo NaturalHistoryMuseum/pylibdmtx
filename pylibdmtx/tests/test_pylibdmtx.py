@@ -64,8 +64,7 @@ class TestDecode(unittest.TestCase):
     def test_empty(self):
         "Do not show any output for an image that does not contain a barcode"
         res = decode(self.empty)
-        expected = []
-        self.assertEqual(expected, res)
+        self.assertEqual([], res)
 
     def test_decode_numpy(self):
         "Read image using Pillow and convert to numpy.ndarray"
@@ -75,9 +74,7 @@ class TestDecode(unittest.TestCase):
     @unittest.skipIf(cv2 is None, 'OpenCV not installed')
     def test_decode_opencv(self):
         "Read image using OpenCV"
-        res = decode(
-            cv2.imread(str(TESTDATA.joinpath('datamatrix.png')))
-        )
+        res = decode(cv2.imread(str(TESTDATA.joinpath('datamatrix.png'))))
         self.assertEqual(self.EXPECTED, res)
 
     def test_external_dependencies(self):
@@ -88,14 +85,42 @@ class TestDecode(unittest.TestCase):
     @patch('pylibdmtx.pylibdmtx.dmtxImageCreate')
     def test_dmtxImageCreate_failed(self, dmtxImageCreate):
         dmtxImageCreate.return_value = None
-        self.assertRaises(PyLibDMTXError, decode, self.datamatrix)
+        self.assertRaisesRegexp(
+            PyLibDMTXError, 'Could not create image', decode, self.datamatrix
+        )
         self.assertEqual(1, dmtxImageCreate.call_count)
 
     @patch('pylibdmtx.pylibdmtx.dmtxDecodeCreate')
     def test_dmtxDecodeCreate_failed(self, dmtxDecodeCreate):
         dmtxDecodeCreate.return_value = None
-        self.assertRaises(PyLibDMTXError, decode, self.datamatrix)
+        self.assertRaisesRegexp(
+            PyLibDMTXError, 'Could not create decoder', decode, self.datamatrix
+        )
         self.assertEqual(1, dmtxDecodeCreate.call_count)
+
+    def test_unsupported_bits_per_pixel(self):
+        # 40 bits-per-pixel
+        data = (list(range(3 * 3 * 5)), 3, 3)
+        self.assertRaisesRegexp(
+            PyLibDMTXError,
+            (
+                'Unsupported bits-per-pixel: \[40\] Should be one of '
+                '\[8, 16, 24, 32\]'
+            ),
+            decode, data
+        )
+
+    def test_inconsistent_dimensions(self):
+        # Image data has ten bytes. width x height indicates nine bytes
+        data = (list(range(10)), 3, 3)
+        self.assertRaisesRegexp(
+            PyLibDMTXError,
+            (
+                'Inconsistent dimensions: image data of 10 bytes is not '
+                'divisible by \(width x height = 9\)'
+            ),
+            decode, data
+        )
 
 
 if __name__ == '__main__':
