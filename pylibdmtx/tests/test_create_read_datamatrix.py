@@ -40,14 +40,17 @@ class TestReadDatamatrix(unittest.TestCase):
         self.assertEqual(expected, stdout.getvalue().strip())
 
     def test_create_datamatrix(self):
-        tmpfile = os.path.join(tempfile.mkdtemp(), 'test.png')
-        main_create(['--size', '44x44', tmpfile, 'Stegosaurus'])
-        with capture_stdout() as stdout:
-            main_read([tmpfile])
-        os.unlink(tmpfile)
+        tmpfile = tempfile.NamedTemporaryFile(suffix='.png', delete=False)
+        tmpfile.close()
+        try:
+            main_create(['--size', '44x44', tmpfile.name, 'Stegosaurus'])
+            with capture_stdout() as stdout:
+                main_read([tmpfile.name])
 
-        expected = "Stegosaurus" if 2 == sys.version_info[0] else "b'Stegosaurus'"
-        self.assertEqual(expected, stdout.getvalue().strip())
+            expected = "Stegosaurus" if 2 == sys.version_info[0] else "b'Stegosaurus'"
+            self.assertEqual(expected, stdout.getvalue().strip())
+        finally:
+            os.unlink(tmpfile.name)
 
 if __name__ == '__main__':
     unittest.main()

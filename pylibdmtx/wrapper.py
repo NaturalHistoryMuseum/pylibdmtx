@@ -456,7 +456,7 @@ dmtxRegionDestroy = libdmtx_function(
 
 dmtxImageGetProp = libdmtx_function(
     'dmtxImageGetProp',
-    DmtxPassFail,
+    c_int,
     POINTER(DmtxImage),
     c_int,  # prop
 )
@@ -485,5 +485,5 @@ dmtxEncodeDataMatrix = libdmtx_function(
     DmtxPassFail,
     POINTER(DmtxEncode),
     c_int,
-    POINTER(c_char)
+    POINTER(c_ubyte)
 )

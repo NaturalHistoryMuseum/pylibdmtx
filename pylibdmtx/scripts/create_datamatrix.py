@@ -5,30 +5,20 @@ import argparse
 import sys
 
 import pylibdmtx
-from pylibdmtx.pylibdmtx import encode
-
-
-def parse_size(s):
-    try:
-        w, h = s.split('x', 1)
-        w, h = int(w), int(h)
-    except ValueError:
-        raise argparse.ArgumentTypeError('Size is not in the format <WIDTH>x<HEIGHT>')
-    return w, h
+from pylibdmtx.pylibdmtx import encode, ENCODING_SIZE_NAMES, ENCODING_SCHEME_NAMES
 
 
 def main(args=None):
-    encoding_list = 'ascii', 'base256', 'c40', 'edifact', 'text', 'x12'
     if args is None:
         args = sys.argv[1:]
 
     parser = argparse.ArgumentParser(
-        description='Creates a png file containing a datamatrix encoded message'
+        description='Creates an image containing a datamatrix encoded message'
     )
-    parser.add_argument('output_file', help='Filename of the PNG')
+    parser.add_argument('output_file', help='Filename of the output image')
     parser.add_argument('message', help='Message to encode')
-    parser.add_argument('--size', metavar='WxH', help='Forces datamatrix grid to WxH instead of auto size.', type=parse_size)
-    parser.add_argument('--encoding-scheme', help='Forces encoding method, default is ascii', choices=encoding_list)
+    parser.add_argument('--size', metavar='WxH', help='Forces datamatrix grid to WxH instead of auto size.', choices=ENCODING_SIZE_NAMES)
+    parser.add_argument('--encoding-scheme', help='Forces encoding method, default is ascii', choices=ENCODING_SCHEME_NAMES)
     parser.add_argument(
         '-v', '--version', action='version',
         version='%(prog)s ' + pylibdmtx.__version__
