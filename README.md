@@ -7,12 +7,16 @@
 
 Read Data Matrix barcodes from Python 2 and 3 using the
 [libdmtx](http://libdmtx.sourceforge.net/) library.
-Works with PIL / Pillow images, OpenCV / numpy `ndarray`s, and raw bytes.
+
+* Pure python
+* Works with PIL / Pillow images, OpenCV / numpy `ndarray`s, and raw bytes
+* Decodes locations of barcodes
+* No dependencies, other than the libdmtx library itself
+* Tested on Python 2.7, and Python 3.4 to 3.6
 
 The older
 [pydmtx](https://sourceforge.net/p/libdmtx/dmtx-wrappers/ci/master/tree/python/)
-package is stuck in Python 2.x-land. This pure-Python package uses `ctypes` to
-bring `libdmtx` to Python 2.7 and Python 3.4 or greater.
+package is stuck in Python 2.x-land.
 
 ## Installation
 
