@@ -1,3 +1,7 @@
+### v0.2.0
+
+* #18 Encode support
+
 ### v0.1.8
 
 * #16 Improve error messages

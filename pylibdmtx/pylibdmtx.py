@@ -1,8 +1,10 @@
 from __future__ import print_function
 
+import ctypes
 from collections import namedtuple
 from contextlib import contextmanager
 from ctypes import byref, cast, string_at
+from functools import partial
 
 from .pylibdmtx_error import PyLibDMTXError
 from .wrapper import (
@@ -10,11 +12,21 @@ from .wrapper import (
     dmtxDecodeDestroy, dmtxRegionDestroy, dmtxMessageDestroy, dmtxTimeAdd,
     dmtxTimeNow, dmtxDecodeMatrixRegion, dmtxRegionFindNext,
     dmtxMatrix3VMultiplyBy, dmtxDecodeSetProp, DmtxPackOrder, DmtxProperty,
-    DmtxUndefined, DmtxVector2, EXTERNAL_DEPENDENCIES
-)
+    DmtxUndefined, DmtxVector2, EXTERNAL_DEPENDENCIES,
+    DmtxSymbolSize, DmtxScheme, dmtxEncodeSetProp, dmtxEncodeDataMatrix, dmtxImageGetProp, dmtxEncodeCreate,
+    dmtxEncodeDestroy)
 
-__all__ = ['decode', 'EXTERNAL_DEPENDENCIES']
+__all__ = ['decode', 'encode', 'ENCODING_SCHEME_NAMES', 'ENCODING_SIZE_NAMES', 'EXTERNAL_DEPENDENCIES']
 
+ENCODING_SCHEME_PREFIX = 'DmtxScheme'
+ENCODING_SIZE_PREFIX = 'DmtxSymbol'
+
+ENCODING_SCHEME_NAMES = sorted(
+            n.name[len(ENCODING_SCHEME_PREFIX):] for n in DmtxScheme
+            )
+ENCODING_SIZE_NAMES = sorted(
+            n.name[len(ENCODING_SIZE_PREFIX):] for n in DmtxSymbolSize
+            )
 
 # A rectangle
 Rect = namedtuple('Rect', ['left', 'top', 'width', 'height'])
@@ -272,3 +284,69 @@ def decode(image, timeout=None, gap_size=None, shrink=1, shape=None,
                                 break
 
     return results
+
+
+@contextmanager
+def libdmtx_encoder():
+    encoder = dmtxEncodeCreate()
+    if not encoder:
+        raise PyLibDMTXError('Could not create encoder')
+
+    try:
+        yield encoder
+    finally:
+        dmtxEncodeDestroy(byref(encoder))
+
+
+def encode(data, scheme='Ascii', symsize=None):
+    """
+    Encodes `data` in a DataMatrix image.
+
+    For now bpp is the libdmtx default which is 24
+
+    Args:
+        data: bytes instance
+        scheme: encoding scheme, one of 'Ascii', 'Base256', 'C40', 'Edifact', 'Text', 'X12'
+        symsize: symbol size. If `None` it's automatic, otherwise should be a string in the format 'WxH', e.g. '44x44'
+
+    Returns:
+        A tuple: `(width, height, bpp, pixels)`.
+        You can use that result to build a PIL image:
+
+            Image.frombytes('RGB', (width, height), pixels)
+
+    """
+
+    if symsize is not None:
+        size_name = '{0}{1}'.format(ENCODING_SIZE_PREFIX, symsize)
+        if not hasattr(DmtxSymbolSize, size_name):
+            raise ValueError('Invalid symsize [{0}]: should be one of {1}'.format(
+                symsize, ENCODING_SIZE_NAMES
+            ))
+        symsize = getattr(DmtxSymbolSize, size_name)
+    else:
+        symsize = DmtxSymbolSize.DmtxSymbolShapeAuto
+
+    if scheme is not None:
+        scheme_name = '{0}{1}'.format(ENCODING_SCHEME_PREFIX, scheme.capitalize())
+        try:
+            scheme = getattr(DmtxScheme, scheme_name)
+        except AttributeError:
+            raise ValueError('Invalid scheme [{0}]: should be one of {1}'.format(
+                scheme, ENCODING_SCHEME_NAMES
+            ))
+    else:
+        scheme = DmtxScheme.DmtxSchemeAscii
+
+    with libdmtx_encoder() as enc:
+        dmtxEncodeSetProp(enc, DmtxProperty.DmtxPropScheme, scheme)
+        dmtxEncodeSetProp(enc, DmtxProperty.DmtxPropSizeRequest, symsize)
+
+        if dmtxEncodeDataMatrix(enc, len(data), cast(data, c_ubyte_p)) == 0:
+            raise PyLibDMTXError('could not encode data (maybe too long?)')
+
+        return_props = DmtxProperty.DmtxPropWidth, DmtxProperty.DmtxPropHeight, DmtxProperty.DmtxPropBitsPerPixel
+        w, h, bpp = map(partial(dmtxImageGetProp, enc[0].image),  return_props)
+        sz = w * h * bpp // 8
+        pixels = cast(enc[0].image[0].pxl, ctypes.POINTER(ctypes.c_ubyte * sz))
+        return w, h, bpp, ctypes.string_at(pixels, sz)
