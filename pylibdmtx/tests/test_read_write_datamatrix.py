@@ -14,7 +14,7 @@ else:
 from PIL import Image
 
 from pylibdmtx.scripts.read_datamatrix import main as main_read
-from pylibdmtx.scripts.create_datamatrix import main as main_create
+from pylibdmtx.scripts.write_datamatrix import main as main_write
 
 
 @contextmanager
@@ -26,7 +26,7 @@ def capture_stdout():
         sys.stdout = old_stdout
 
 
-class TestReadDatamatrix(unittest.TestCase):
+class TestReadWriteDatamatrix(unittest.TestCase):
     def test_read_datamatrix(self):
         "Read datamatrix barcodes"
         with capture_stdout() as stdout:
@@ -39,11 +39,11 @@ class TestReadDatamatrix(unittest.TestCase):
 
         self.assertEqual(expected, stdout.getvalue().strip())
 
-    def test_create_datamatrix(self):
+    def test_write_datamatrix(self):
         tmpfile = tempfile.NamedTemporaryFile(suffix='.png', delete=False)
         tmpfile.close()
         try:
-            main_create(['--size', '44x44', tmpfile.name, 'Stegosaurus'])
+            main_write(['--size', '44x44', tmpfile.name, 'Stegosaurus'])
             with capture_stdout() as stdout:
                 main_read([tmpfile.name])
 
@@ -51,6 +51,7 @@ class TestReadDatamatrix(unittest.TestCase):
             self.assertEqual(expected, stdout.getvalue().strip())
         finally:
             os.unlink(tmpfile.name)
+
 
 if __name__ == '__main__':
     unittest.main()

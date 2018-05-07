@@ -5,7 +5,7 @@
 [![Travis status](https://travis-ci.org/NaturalHistoryMuseum/pylibdmtx.svg?branch=master)](https://travis-ci.org/NaturalHistoryMuseum/pylibdmtx)
 [![Coverage Status](https://coveralls.io/repos/github/NaturalHistoryMuseum/pylibdmtx/badge.svg?branch=master)](https://coveralls.io/github/NaturalHistoryMuseum/pylibdmtx?branch=master)
 
-Read Data Matrix barcodes from Python 2 and 3 using the
+Read and write Data Matrix barcodes from Python 2 and 3 using the
 [libdmtx](http://libdmtx.sourceforge.net/) library.
 
 * Pure python
@@ -76,11 +76,12 @@ You can also provide a tuple `(pixels, width, height)`
  Decoded(data='Plesiosaurus', rect=Rect(left=298, top=6, width=95, height=95))]
 ```
 
-The encoding function returns raw bytes:
+The `encode` function generates an image containing a Data Matrix barcode:
 
 ```
->>> w, h, bpp, pixels = encode('hello world')
->>> img = Image.frombytes('RGB', (w, h), pixels)
+>>> from pylibdmtx.pylibdmtx import encode
+>>> encoded = encode('hello world')
+>>> img = Image.frombytes('RGB', (encoded.width, encoded.height), encoded.pixels)
 >>> img.save('dmtx.png')
 ```
 
