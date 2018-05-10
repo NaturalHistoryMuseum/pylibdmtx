@@ -37,7 +37,7 @@ sudo apt-get install libdmtx0a
 ```
 
 Install this Python wrapper; use the second form to install dependencies of
-the `read_datamatrix` command-line script:
+the `read_datamatrix` and `write_datamatrix` command-line scripts:
 
 ```
 pip install pylibdmtx
