@@ -99,11 +99,15 @@ Feel free to submit a PR to address any of these.
 * I took the bone-headed approach of copying the logic in
 `pydmtx`'s `decode` function
 (in [pydmtxmodule.c](https://sourceforge.net/p/libdmtx/dmtx-wrappers/ci/master/tree/python/));
-there might be more of `libdmtx`'s functionality that could be used to read
-barcodes
+there might be more of `libdmtx`'s functionality that could usefully be used
+exposed
 
 * I exposed the bare minimum of functions, defines, enums and typedefs
 neede to reimplement `pydmtx`'s `decode` function
+
+## Contributors
+
+* Vinicius Kursancew (@kursancew) - first implementation of barcode generation
 
 ## License
 
