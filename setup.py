@@ -29,6 +29,7 @@ setup_data = {
     'license': 'MIT',
     'description': pylibdmtx.__doc__,
     'long_description': readme(),
+    'long_description_content_type': 'text/x-rst',
     'packages': ['pylibdmtx', 'pylibdmtx.scripts', 'pylibdmtx.tests'],
     'test_suite': 'pylibdmtx.tests',
     'scripts': [
