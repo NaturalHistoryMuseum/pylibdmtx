@@ -14,7 +14,6 @@ URL = 'https://github.com/NaturalHistoryMuseum/pylibdmtx/'
 
 def readme():
     try:
-        # README.rst is generated from README.md (see DEVELOPING.md)
         with open('README.rst') as f:
             return f.read()
     except:
@@ -30,6 +29,7 @@ setup_data = {
     'license': 'MIT',
     'description': pylibdmtx.__doc__,
     'long_description': readme(),
+    'long_description_content_type': 'text/x-rst',
     'packages': ['pylibdmtx', 'pylibdmtx.scripts', 'pylibdmtx.tests'],
     'test_suite': 'pylibdmtx.tests',
     'scripts': [

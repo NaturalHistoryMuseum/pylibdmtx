@@ -41,16 +41,13 @@ in a frozen binary.
 
 ```
 pip install wheel
-brew install pandoc
 ```
 
 2. Build
-    Generate the `reStructuredText README.rst` from `README.md` and create
-    source and wheel builds. The `win32` and `win_amd64` wheels will contain the
-    appropriate `libdmtx.dll`.
+    Create source and wheel builds. The `win32` and `win_amd64` wheels will
+    contain the appropriate `libdmtx.dll`.
 
     ```
-    pandoc --from=markdown --to=rst README.md -o README.rst
     rm -rf build dist MANIFEST.in pylibdmtx.egg-info
     cp MANIFEST.in.all MANIFEST.in
     ./setup.py bdist_wheel
@@ -66,7 +63,7 @@ brew install pandoc
     rm -rf build MANIFEST.in pylibdmtx.egg-info
     ```
 
-3. Release to pypitest (see https://wiki.python.org/moin/TestPyPI for details)
+3. Release to pypitest (see https://packaging.python.org/guides/using-testpypi/)
 
     ```
     mkvirtualenv pypi
