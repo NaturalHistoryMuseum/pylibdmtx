@@ -13,7 +13,7 @@ pylibdmtx
 .. image:: https://coveralls.io/repos/github/NaturalHistoryMuseum/pylibdmtx/badge.svg?branch=master
     :target: https://coveralls.io/github/NaturalHistoryMuseum/pylibdmtx?branch=master
 
-Read Data Matrix barcodes from Python 2 and 3 using the
+Read and write Data Matrix barcodes from Python 2 and 3 using the
 `libdmtx <http://libdmtx.sourceforge.net/>`__ library.
 
 -  Pure python
@@ -46,7 +46,7 @@ Linux:
    sudo apt-get install libdmtx0a
 
 Install this Python wrapper; use the second form to install dependencies of the
-``read_datamatrix`` command-line script:
+``read_datamatrix`` and ``write_datamatrix`` command-line scripts:
 
 ::
 
@@ -86,6 +86,16 @@ You can also provide a tuple ``(pixels, width, height)``
    [Decoded(data='Stegosaurus', rect=Rect(left=5, top=6, width=96, height=95)),
     Decoded(data='Plesiosaurus', rect=Rect(left=298, top=6, width=95, height=95))]
 
+The ``encode`` function generates an image containing a Data Matrix barcode:
+
+::
+
+  >>> from pylibdmtx.pylibdmtx import encode
+  >>> encoded = encode('hello world')
+  >>> img = Image.frombytes('RGB', (encoded.width, encoded.height), encoded.pixels)
+  >>> img.save('dmtx.png')
+
+
 Windows error message
 ---------------------
 
@@ -105,11 +115,16 @@ Feel free to submit a PR to address any of these.
 
 -  I took the bone-headed approach of copying the logic in
    ``pydmtx``\ ’s ``decode`` function (in
-   `pydmtxmodule.c <https://sourceforge.net/p/libdmtx/dmtx-wrappers/ci/master/tree/python/>`__); there might be more of ``libdmtx``\ ’s functionality that could be
-   used to read barcodes
+   `pydmtxmodule.c <https://sourceforge.net/p/libdmtx/dmtx-wrappers/ci/master/tree/python/>`__); there might be more of ``libdmtx``\ ’s functionality that could usefully
+   be exposed
 
 -  I exposed the bare minimum of functions, defines, enums and typedefs neede to
    reimplement ``pydmtx``\ ’s ``decode`` function
+
+Contributors
+------------
+
+-  Vinicius Kursancew (@kursancew) - first implementation of barcode writing
 
 License
 -------
