@@ -1,5 +1,6 @@
 ### v0.1.8
 
+* #22 Use reStructuredText for README
 * #16 Improve error messages
 
 ### v0.1.6
