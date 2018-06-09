@@ -4,7 +4,7 @@ import sys
 import pylibdmtx
 
 
-SCRIPTS = ['read_datamatrix']
+SCRIPTS = ['read_datamatrix', 'write_datamatrix']
 
 # Optional dependency
 PILLOW = 'Pillow>=3.2.0'
@@ -34,7 +34,7 @@ setup_data = {
     'test_suite': 'pylibdmtx.tests',
     'scripts': [
         'pylibdmtx/scripts/{0}.py'.format(script) for script in SCRIPTS
-        ],
+    ],
     'entry_points': {
         'console_scripts': [
             '{0}=pylibdmtx.scripts.{0}:main'.format(script)
