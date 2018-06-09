@@ -63,7 +63,7 @@ pip install wheel
     rm -rf build MANIFEST.in pylibdmtx.egg-info
     ```
 
-3. Release to pypitest (see https://wiki.python.org/moin/TestPyPI for details)
+3. Release to pypitest (see https://packaging.python.org/guides/using-testpypi/)
 
     ```
     mkvirtualenv pypi
