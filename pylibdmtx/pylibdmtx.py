@@ -1,8 +1,10 @@
 from __future__ import print_function
 
+import ctypes
 from collections import namedtuple
 from contextlib import contextmanager
 from ctypes import byref, cast, string_at
+from functools import partial
 
 from .pylibdmtx_error import PyLibDMTXError
 from .wrapper import (
@@ -10,17 +12,37 @@ from .wrapper import (
     dmtxDecodeDestroy, dmtxRegionDestroy, dmtxMessageDestroy, dmtxTimeAdd,
     dmtxTimeNow, dmtxDecodeMatrixRegion, dmtxRegionFindNext,
     dmtxMatrix3VMultiplyBy, dmtxDecodeSetProp, DmtxPackOrder, DmtxProperty,
-    DmtxUndefined, DmtxVector2, EXTERNAL_DEPENDENCIES
+    DmtxUndefined, DmtxVector2, EXTERNAL_DEPENDENCIES,
+    DmtxSymbolSize, DmtxScheme, dmtxEncodeSetProp, dmtxEncodeDataMatrix,
+    dmtxImageGetProp, dmtxEncodeCreate, dmtxEncodeDestroy
 )
 
-__all__ = ['decode', 'EXTERNAL_DEPENDENCIES']
+__all__ = [
+    'decode', 'encode', 'Encoded', 'ENCODING_SCHEME_NAMES',
+    'ENCODING_SIZE_NAMES', 'EXTERNAL_DEPENDENCIES',
+]
 
+ENCODING_SCHEME_PREFIX = 'DmtxScheme'
+ENCODING_SIZE_PREFIX = 'DmtxSymbol'
+
+ENCODING_SCHEME_NAMES = sorted(
+    n.name[len(ENCODING_SCHEME_PREFIX):] for n in DmtxScheme
+)
+
+# Not sorting encoding size names - would need to use natural sort order;
+# the existing order within DmtxSymbolSize is sensible.
+ENCODING_SIZE_NAMES = [
+    n.name[len(ENCODING_SIZE_PREFIX):] for n in DmtxSymbolSize
+]
 
 # A rectangle
-Rect = namedtuple('Rect', ['left', 'top', 'width', 'height'])
+Rect = namedtuple('Rect', 'left top width height')
 
 # Results of reading a barcode
-Decoded = namedtuple('Decoded', ['data', 'rect'])
+Decoded = namedtuple('Decoded', 'data rect')
+
+# Results of encoding data to an image
+Encoded = namedtuple('Encoded', 'width height bpp pixels')
 
 # Crude mapping from bits-per-pixels to values in DmtxPackOrder enum
 _PACK_ORDER = {
@@ -272,3 +294,84 @@ def decode(image, timeout=None, gap_size=None, shrink=1, shape=None,
                                 break
 
     return results
+
+
+@contextmanager
+def _encoder():
+    encoder = dmtxEncodeCreate()
+    if not encoder:
+        raise PyLibDMTXError('Could not create encoder')
+
+    try:
+        yield encoder
+    finally:
+        dmtxEncodeDestroy(byref(encoder))
+
+
+def encode(data, scheme=None, size=None):
+    """
+    Encodes `data` in a DataMatrix image.
+
+    For now bpp is the libdmtx default which is 24
+
+    Args:
+        data: bytes instance
+        scheme: encoding scheme - one of `ENCODING_SCHEME_NAMES`, or `None`.
+            If `None`, defaults to 'Ascii'.
+        size: image dimensions - one of `ENCODING_SIZE_NAMES`, or `None`.
+            If `None`, defaults to 'ShapeAuto'.
+
+    Returns:
+        Encoded: with properties `(width, height, bpp, pixels)`.
+        You can use that result to build a PIL image:
+
+            Image.frombytes('RGB', (width, height), pixels)
+
+    """
+
+    size = size if size else 'ShapeAuto'
+    size_name = '{0}{1}'.format(ENCODING_SIZE_PREFIX, size)
+    if not hasattr(DmtxSymbolSize, size_name):
+        raise PyLibDMTXError(
+            'Invalid size [{0}]: should be one of {1}'.format(
+                size, ENCODING_SIZE_NAMES
+            )
+        )
+    size = getattr(DmtxSymbolSize, size_name)
+
+    scheme = scheme if scheme else 'Ascii'
+    scheme_name = '{0}{1}'.format(
+        ENCODING_SCHEME_PREFIX, scheme.capitalize()
+    )
+    if not hasattr(DmtxScheme, scheme_name):
+        raise PyLibDMTXError(
+            'Invalid scheme [{0}]: should be one of {1}'.format(
+                scheme, ENCODING_SCHEME_NAMES
+            )
+        )
+    scheme = getattr(DmtxScheme, scheme_name)
+
+    with _encoder() as encoder:
+        dmtxEncodeSetProp(encoder, DmtxProperty.DmtxPropScheme, scheme)
+        dmtxEncodeSetProp(encoder, DmtxProperty.DmtxPropSizeRequest, size)
+
+        if dmtxEncodeDataMatrix(encoder, len(data), cast(data, c_ubyte_p)) == 0:
+            raise PyLibDMTXError(
+                'Could not encode data, possibly because the image is not '
+                'large enough to contain the data'
+            )
+
+        w, h, bpp = map(
+            partial(dmtxImageGetProp, encoder[0].image),
+            (
+                DmtxProperty.DmtxPropWidth, DmtxProperty.DmtxPropHeight,
+                DmtxProperty.DmtxPropBitsPerPixel
+            )
+        )
+        size = w * h * bpp // 8
+        pixels = cast(
+            encoder[0].image[0].pxl, ctypes.POINTER(ctypes.c_ubyte * size)
+        )
+        return Encoded(
+            width=w, height=h, bpp=bpp, pixels=ctypes.string_at(pixels, size)
+        )

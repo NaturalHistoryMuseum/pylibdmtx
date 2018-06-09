@@ -96,6 +96,104 @@ class DmtxFlip(IntEnum):
     DmtxFlipY = 0x01 << 1
 
 
+@unique
+class DmtxScheme(IntEnum):
+    DmtxSchemeAutoFast = -2
+    DmtxSchemeAutoBest = -1
+    DmtxSchemeAscii = 0
+    DmtxSchemeC40 = 1
+    DmtxSchemeText = 2
+    DmtxSchemeX12 = 3
+    DmtxSchemeEdifact = 4
+    DmtxSchemeBase256 = 5
+
+
+@unique
+class DmtxSymbolSize(IntEnum):
+    DmtxSymbolRectAuto = -3
+    DmtxSymbolSquareAuto = -2
+    DmtxSymbolShapeAuto = -1
+    DmtxSymbol10x10 = 0
+    DmtxSymbol12x12 = 1
+    DmtxSymbol14x14 = 2
+    DmtxSymbol16x16 = 3
+    DmtxSymbol18x18 = 4
+    DmtxSymbol20x20 = 5
+    DmtxSymbol22x22 = 6
+    DmtxSymbol24x24 = 7
+    DmtxSymbol26x26 = 8
+    DmtxSymbol32x32 = 9
+    DmtxSymbol36x36 = 10
+    DmtxSymbol40x40 = 11
+    DmtxSymbol44x44 = 12
+    DmtxSymbol48x48 = 13
+    DmtxSymbol52x52 = 14
+    DmtxSymbol64x64 = 15
+    DmtxSymbol72x72 = 16
+    DmtxSymbol80x80 = 17
+    DmtxSymbol88x88 = 18
+    DmtxSymbol96x96 = 19
+    DmtxSymbol104x104 = 20
+    DmtxSymbol120x120 = 21
+    DmtxSymbol132x132 = 22
+    DmtxSymbol144x144 = 23
+    DmtxSymbol8x18 = 24
+    DmtxSymbol8x32 = 25
+    DmtxSymbol12x26 = 26
+    DmtxSymbol12x36 = 27
+    DmtxSymbol16x36 = 28
+    DmtxSymbol16x48 = 29
+
+
+@unique
+class DmtxScheme(IntEnum):
+    DmtxSchemeAutoFast = -2
+    DmtxSchemeAutoBest = -1
+    DmtxSchemeAscii = 0
+    DmtxSchemeC40 = 1
+    DmtxSchemeText = 2
+    DmtxSchemeX12 = 3
+    DmtxSchemeEdifact = 4
+    DmtxSchemeBase256 = 5
+
+
+@unique
+class DmtxSymbolSize(IntEnum):
+    DmtxSymbolRectAuto = -3
+    DmtxSymbolSquareAuto = -2
+    DmtxSymbolShapeAuto = -1
+    DmtxSymbol10x10 = 0
+    DmtxSymbol12x12 = 1
+    DmtxSymbol14x14 = 2
+    DmtxSymbol16x16 = 3
+    DmtxSymbol18x18 = 4
+    DmtxSymbol20x20 = 5
+    DmtxSymbol22x22 = 6
+    DmtxSymbol24x24 = 7
+    DmtxSymbol26x26 = 8
+    DmtxSymbol32x32 = 9
+    DmtxSymbol36x36 = 10
+    DmtxSymbol40x40 = 11
+    DmtxSymbol44x44 = 12
+    DmtxSymbol48x48 = 13
+    DmtxSymbol52x52 = 14
+    DmtxSymbol64x64 = 15
+    DmtxSymbol72x72 = 16
+    DmtxSymbol80x80 = 17
+    DmtxSymbol88x88 = 18
+    DmtxSymbol96x96 = 19
+    DmtxSymbol104x104 = 20
+    DmtxSymbol120x120 = 21
+    DmtxSymbol132x132 = 22
+    DmtxSymbol144x144 = 23
+    DmtxSymbol8x18 = 24
+    DmtxSymbol8x32 = 25
+    DmtxSymbol12x26 = 26
+    DmtxSymbol12x36 = 27
+    DmtxSymbol16x36 = 28
+    DmtxSymbol16x48 = 29
+
+
 # Types
 DmtxPassFail = c_uint
 DmtxMatrix3 = c_double * 3 * 3
@@ -268,6 +366,32 @@ class DmtxRegion(Structure):
     ]
 
 
+class DmtxEncode(Structure):
+    _fields_ = [
+        ('method', c_int),
+        ('scheme', c_int),
+        ('sizeIdxRequest', c_int),
+        ('marginSize', c_int),
+        ('moduleSize', c_int),
+        ('pixelPacking', c_int),
+        ('imageFlip', c_int),
+        ('rowPadBytes', c_int),
+        ('message', POINTER(DmtxMessage)),
+        ('image', POINTER(DmtxImage)),
+        ('region', DmtxRegion),
+        ('xfrm', DmtxMatrix3),
+        ('rxfrm', DmtxMatrix3),
+    ]
+
+# Globals populated in load_libdmtx
+LIBDMTX = None
+"""ctypes.CDLL
+"""
+
+EXTERNAL_DEPENDENCIES = []
+"""Sequence of instances of ctypes.CDLL
+"""
+
 def load_libdmtx():
     """Loads the libdmtx shared library.
 
@@ -377,4 +501,38 @@ dmtxRegionDestroy = libdmtx_function(
     'dmtxRegionDestroy',
     DmtxPassFail,
     POINTER(POINTER(DmtxRegion))
+)
+
+dmtxImageGetProp = libdmtx_function(
+    'dmtxImageGetProp',
+    c_int,
+    POINTER(DmtxImage),
+    c_int,  # prop
+)
+
+dmtxEncodeCreate = libdmtx_function(
+    'dmtxEncodeCreate',
+    POINTER(DmtxEncode),
+)
+
+dmtxEncodeDestroy = libdmtx_function(
+    'dmtxEncodeDestroy',
+    DmtxPassFail,
+    POINTER(POINTER(DmtxEncode))
+)
+
+dmtxEncodeSetProp = libdmtx_function(
+    'dmtxEncodeSetProp',
+    DmtxPassFail,
+    POINTER(DmtxEncode),
+    c_int,    # prop
+    c_int     # value
+)
+
+dmtxEncodeDataMatrix = libdmtx_function(
+    'dmtxEncodeDataMatrix',
+    DmtxPassFail,
+    POINTER(DmtxEncode),
+    c_int,
+    POINTER(c_ubyte)
 )

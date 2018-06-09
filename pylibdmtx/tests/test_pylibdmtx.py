@@ -18,8 +18,10 @@ except ImportError:
     cv2 = None
 
 from pylibdmtx.pylibdmtx import (
-    decode, Decoded, Rect, PyLibDMTXError, EXTERNAL_DEPENDENCIES
+    decode, encode, Decoded, Encoded, Rect, PyLibDMTXError,
+    EXTERNAL_DEPENDENCIES
 )
+from pylibdmtx.pylibdmtx_error import PyLibDMTXError
 
 
 TESTDATA = Path(__file__).parent
@@ -120,6 +122,75 @@ class TestDecode(unittest.TestCase):
                 'divisible by \(width x height = 9\)'
             ),
             decode, data
+        )
+
+
+class TestEncode(unittest.TestCase):
+    def _assert_encoded_data(self, expected_data, encoded):
+        # Check encoded data
+        image = Image.frombytes(
+            'RGB', (encoded.width, encoded.height), encoded.pixels
+        )
+        decoded = decode(image)
+
+        self.assertEqual(1, len(decoded))
+        self.assertEqual(expected_data, decoded[0].data)
+
+    def test_encode_defaults(self):
+        data = b'hello world'
+        encoded = encode(data)
+
+        # Check returned data, with the exception of the pixel data
+        self.assertEqual(
+            Encoded(width=100, height=100, bpp=24, pixels=None),
+            encoded._replace(pixels=None)
+        )
+        self._assert_encoded_data(data, encoded)
+
+    def test_encode_size(self):
+        data = b'hello world'
+        encoded = encode(data, size='36x36')
+
+        # Check returned data, with the exception of the pixel data
+        self.assertEqual(
+            Encoded(width=200, height=200, bpp=24, pixels=None),
+            encoded._replace(pixels=None)
+        )
+
+        self._assert_encoded_data(data, encoded)
+
+    def test_encode_scheme(self):
+        data = b'hello world'
+        encoded = encode(data, scheme='Base256')
+
+        # Check returned data, with the exception of the pixel data
+        self.assertEqual(
+            Encoded(width=110, height=110, bpp=24, pixels=None),
+            encoded._replace(pixels=None)
+        )
+
+        self._assert_encoded_data(data, encoded)
+
+    def test_invalid_scheme(self):
+        self.assertRaisesRegexp(
+            PyLibDMTXError,
+            r"Invalid scheme \[asdf\]: should be one of \['Ascii",
+            encode, b' ', scheme='asdf'
+        )
+
+    def test_invalid_size(self):
+        self.assertRaisesRegexp(
+            PyLibDMTXError,
+            r"Invalid size \[9x9\]: should be one of \['RectAuto'",
+            encode, b' ', size='9x9'
+        )
+
+    def test_image_not_large_enough(self):
+        self.assertRaisesRegexp(
+            PyLibDMTXError,
+            'Could not encode data, possibly because the image is not '
+            'large enough to contain the data',
+            encode, b' '*50, size='10x10'
         )
 
 
