@@ -42,6 +42,7 @@ class DmtxProperty(IntEnum):
     DmtxPropSizeRequest = 101
     DmtxPropMarginSize = 102
     DmtxPropModuleSize = 103
+    DmtxPropFnc1 = 104
     # Decoding properties
     DmtxPropEdgeMin = 200
     DmtxPropEdgeMax = 201
@@ -207,6 +208,7 @@ class DmtxMessage(Structure):
         ('outputSize', c_size_t),
         ('outputIdx', c_int),
         ('padCount', c_int),
+        ('fnc1', c_int),
         ('array', c_ubyte_p),
         ('code', c_ubyte_p),
         ('output', c_ubyte_p),
@@ -305,6 +307,7 @@ class DmtxDecode(Structure):
         ('edgeMin', c_int),
         ('edgeMax', c_int),
         ('scanGap', c_int),
+        ('fnc1', c_int),
         ('squareDevn', c_double),
         ('sizeIdxExpected', c_int),
         ('edgeThresh', c_int),
@@ -376,6 +379,7 @@ class DmtxEncode(Structure):
         ('pixelPacking', c_int),
         ('imageFlip', c_int),
         ('rowPadBytes', c_int),
+        ('fnc1', c_int),
         ('message', POINTER(DmtxMessage)),
         ('image', POINTER(DmtxImage)),
         ('region', DmtxRegion),
