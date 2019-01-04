@@ -27,6 +27,36 @@ EXTERNAL_DEPENDENCIES = []
 """List of instances of ctypes.CDLL. Helpful when freezing.
 """
 
+def load_libdmtx():
+    """Loads the libdmtx shared library.
+
+    Populates the globals LIBDMTX and EXTERNAL_DEPENDENCIES.
+    """
+    global LIBDMTX
+    global EXTERNAL_DEPENDENCIES
+    if not LIBDMTX:
+        LIBDMTX = dmtx_library.load()
+        EXTERNAL_DEPENDENCIES = [LIBDMTX]
+
+    return LIBDMTX
+
+
+def libdmtx_function(fname, restype, *args):
+    """Returns a foreign function exported by `libdmtx`.
+
+    Args:
+        fname (:obj:`str`): Name of the exported function as string.
+        restype (:obj:): Return type - one of the `ctypes` primitive C data
+        types.
+        *args: Arguments - a sequence of `ctypes` primitive C data types.
+
+    Returns:
+        cddl.CFunctionType: A wrapper around the function.
+    """
+    prototype = CFUNCTYPE(restype, *args)
+    return prototype((fname, load_libdmtx()))
+
+
 # Types
 c_ubyte_p = POINTER(c_ubyte)
 """unsigned char* type
@@ -387,45 +417,7 @@ class DmtxEncode(Structure):
         ('rxfrm', DmtxMatrix3),
     ]
 
-# Globals populated in load_libdmtx
-LIBDMTX = None
-"""ctypes.CDLL
-"""
-
-EXTERNAL_DEPENDENCIES = []
-"""Sequence of instances of ctypes.CDLL
-"""
-
-def load_libdmtx():
-    """Loads the libdmtx shared library.
-
-    Populates the globals LIBDMTX and EXTERNAL_DEPENDENCIES.
-    """
-    global LIBDMTX
-    global EXTERNAL_DEPENDENCIES
-    if not LIBDMTX:
-        LIBDMTX = dmtx_library.load()
-        EXTERNAL_DEPENDENCIES = [LIBDMTX]
-
-    return LIBDMTX
-
-
 # Function signatures
-def libdmtx_function(fname, restype, *args):
-    """Returns a foreign function exported by `libdmtx`.
-
-    Args:
-        fname (:obj:`str`): Name of the exported function as string.
-        restype (:obj:): Return type - one of the `ctypes` primitive C data
-        types.
-        *args: Arguments - a sequence of `ctypes` primitive C data types.
-
-    Returns:
-        cddl.CFunctionType: A wrapper around the function.
-    """
-    prototype = CFUNCTYPE(restype, *args)
-    return prototype((fname, load_libdmtx()))
-
 
 dmtxTimeNow = libdmtx_function('dmtxTimeNow', DmtxTime)
 
