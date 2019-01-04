@@ -2,7 +2,7 @@
 """
 from ctypes import (
     cdll, c_double, c_int, c_long, c_size_t, c_ubyte, c_uint, c_ulong,
-    c_ulonglong, Structure, CFUNCTYPE, POINTER
+    c_ulonglong, c_char_p, Structure, CFUNCTYPE, POINTER
 )
 from enum import IntEnum, unique
 
@@ -64,6 +64,14 @@ c_ubyte_p = POINTER(c_ubyte)
 
 # Defines and enums
 DmtxUndefined = -1
+
+# We define this function early so that we can use it in the
+# structure definitions below.
+
+_dmtxVersion = libdmtx_function('dmtxVersion', c_char_p)
+
+def dmtxVersion():
+    return _dmtxVersion().decode()
 
 
 @unique
