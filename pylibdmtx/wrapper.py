@@ -5,6 +5,7 @@ from ctypes import (
     c_ulonglong, c_char_p, Structure, CFUNCTYPE, POINTER
 )
 from enum import IntEnum, unique
+from distutils.version import LooseVersion
 
 from . import dmtx_library
 
@@ -251,6 +252,10 @@ class DmtxMessage(Structure):
         ('code', c_ubyte_p),
         ('output', c_ubyte_p),
     ]
+# libdmtx added an extra field in v0.7.5, breaking API
+# backwards compatibility.
+if LooseVersion(dmtxVersion()) < LooseVersion('0.7.5'):
+    del DmtxMessage._fields_[5]
 
 
 class DmtxImage(Structure):
@@ -360,7 +365,10 @@ class DmtxDecode(Structure):
         ('image', POINTER(DmtxImage)),
         ('grid', DmtxScanGrid),
     ]
-
+# libdmtx added an extra field in v0.7.5, breaking API
+# backwards compatibility.
+if LooseVersion(dmtxVersion()) < LooseVersion('0.7.5'):
+    del DmtxDecode._fields_[3]
 
 class DmtxRegion(Structure):
     _fields_ = [
@@ -424,6 +432,10 @@ class DmtxEncode(Structure):
         ('xfrm', DmtxMatrix3),
         ('rxfrm', DmtxMatrix3),
     ]
+# libdmtx added an extra field in v0.7.5, breaking API
+# backwards compatibility.
+if LooseVersion(dmtxVersion()) < LooseVersion('0.7.5'):
+    del DmtxEncode._fields_[8]
 
 # Function signatures
 
