@@ -1,5 +1,6 @@
 ### v0.1.8
 
+* #24 Support libdmtx 0.7.5 (fixes decoding error)
 * #22 Use reStructuredText for README
 * #18 Encode support
 * #16 Improve error messages
