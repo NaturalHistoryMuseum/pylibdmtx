@@ -123,6 +123,7 @@ Contributors
 ------------
 
 -  Vinicius Kursancew (@kursancew) - first implementation of barcode writing
+-  Joseph Weston (@jbweston) - support for ``libdmtx`` 0.7.5
 
 License
 -------
