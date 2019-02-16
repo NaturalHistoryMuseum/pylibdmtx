@@ -2,9 +2,10 @@
 """
 from ctypes import (
     cdll, c_double, c_int, c_long, c_size_t, c_ubyte, c_uint, c_ulong,
-    c_ulonglong, Structure, CFUNCTYPE, POINTER
+    c_ulonglong, c_char_p, Structure, CFUNCTYPE, POINTER
 )
 from enum import IntEnum, unique
+from distutils.version import LooseVersion
 
 from . import dmtx_library
 
@@ -27,6 +28,36 @@ EXTERNAL_DEPENDENCIES = []
 """List of instances of ctypes.CDLL. Helpful when freezing.
 """
 
+def load_libdmtx():
+    """Loads the libdmtx shared library.
+
+    Populates the globals LIBDMTX and EXTERNAL_DEPENDENCIES.
+    """
+    global LIBDMTX
+    global EXTERNAL_DEPENDENCIES
+    if not LIBDMTX:
+        LIBDMTX = dmtx_library.load()
+        EXTERNAL_DEPENDENCIES = [LIBDMTX]
+
+    return LIBDMTX
+
+
+def libdmtx_function(fname, restype, *args):
+    """Returns a foreign function exported by `libdmtx`.
+
+    Args:
+        fname (:obj:`str`): Name of the exported function as string.
+        restype (:obj:): Return type - one of the `ctypes` primitive C data
+        types.
+        *args: Arguments - a sequence of `ctypes` primitive C data types.
+
+    Returns:
+        cddl.CFunctionType: A wrapper around the function.
+    """
+    prototype = CFUNCTYPE(restype, *args)
+    return prototype((fname, load_libdmtx()))
+
+
 # Types
 c_ubyte_p = POINTER(c_ubyte)
 """unsigned char* type
@@ -35,6 +66,12 @@ c_ubyte_p = POINTER(c_ubyte)
 # Defines and enums
 DmtxUndefined = -1
 
+# Define this function early so that it can be used in the definitions below.
+_dmtxVersion = libdmtx_function('dmtxVersion', c_char_p)
+
+def dmtxVersion():
+    return _dmtxVersion().decode()
+
 
 @unique
 class DmtxProperty(IntEnum):
@@ -42,6 +79,7 @@ class DmtxProperty(IntEnum):
     DmtxPropSizeRequest = 101
     DmtxPropMarginSize = 102
     DmtxPropModuleSize = 103
+    DmtxPropFnc1 = 104
     # Decoding properties
     DmtxPropEdgeMin = 200
     DmtxPropEdgeMax = 201
@@ -200,17 +238,31 @@ DmtxMatrix3 = c_double * 3 * 3
 
 
 # Structs
-class DmtxMessage(Structure):
-    _fields_ = [
-        ('arraySize', c_size_t),
-        ('codeSize', c_size_t),
-        ('outputSize', c_size_t),
-        ('outputIdx', c_int),
-        ('padCount', c_int),
-        ('array', c_ubyte_p),
-        ('code', c_ubyte_p),
-        ('output', c_ubyte_p),
-    ]
+if LooseVersion(dmtxVersion()) < LooseVersion('0.7.5'):
+    class DmtxMessage(Structure):
+        _fields_ = [
+            ('arraySize', c_size_t),
+            ('codeSize', c_size_t),
+            ('outputSize', c_size_t),
+            ('outputIdx', c_int),
+            ('padCount', c_int),
+            ('array', c_ubyte_p),
+            ('code', c_ubyte_p),
+            ('output', c_ubyte_p),
+        ]
+else:
+    class DmtxMessage(Structure):
+        _fields_ = [
+            ('arraySize', c_size_t),
+            ('codeSize', c_size_t),
+            ('outputSize', c_size_t),
+            ('outputIdx', c_int),
+            ('padCount', c_int),
+            ('fnc1', c_int),           # libdmtx 0.7.5 inserts this field
+            ('array', c_ubyte_p),
+            ('code', c_ubyte_p),
+            ('output', c_ubyte_p),
+        ]
 
 
 class DmtxImage(Structure):
@@ -300,25 +352,47 @@ class DmtxScanGrid(Structure):
     ]
 
 
-class DmtxDecode(Structure):
-    _fields_ = [
-        ('edgeMin', c_int),
-        ('edgeMax', c_int),
-        ('scanGap', c_int),
-        ('squareDevn', c_double),
-        ('sizeIdxExpected', c_int),
-        ('edgeThresh', c_int),
+if LooseVersion(dmtxVersion()) < LooseVersion('0.7.5'):
+    class DmtxDecode(Structure):
+        _fields_ = [
+            ('edgeMin', c_int),
+            ('edgeMax', c_int),
+            ('scanGap', c_int),
+            ('squareDevn', c_double),
+            ('sizeIdxExpected', c_int),
+            ('edgeThresh', c_int),
 
-        ('xMin', c_int),
-        ('xMax', c_int),
-        ('yMin', c_int),
-        ('yMax', c_int),
-        ('scale', c_int),
+            ('xMin', c_int),
+            ('xMax', c_int),
+            ('yMin', c_int),
+            ('yMax', c_int),
+            ('scale', c_int),
 
-        ('cache', c_ubyte_p),
-        ('image', POINTER(DmtxImage)),
-        ('grid', DmtxScanGrid),
-    ]
+            ('cache', c_ubyte_p),
+            ('image', POINTER(DmtxImage)),
+            ('grid', DmtxScanGrid),
+        ]
+else:
+    class DmtxDecode(Structure):
+        _fields_ = [
+            ('edgeMin', c_int),
+            ('edgeMax', c_int),
+            ('scanGap', c_int),
+            ('fnc1', c_int),           # libdmtx 0.7.5 inserts this field
+            ('squareDevn', c_double),
+            ('sizeIdxExpected', c_int),
+            ('edgeThresh', c_int),
+
+            ('xMin', c_int),
+            ('xMax', c_int),
+            ('yMin', c_int),
+            ('yMax', c_int),
+            ('scale', c_int),
+
+            ('cache', c_ubyte_p),
+            ('image', POINTER(DmtxImage)),
+            ('grid', DmtxScanGrid),
+        ]
 
 
 class DmtxRegion(Structure):
@@ -366,62 +440,44 @@ class DmtxRegion(Structure):
     ]
 
 
-class DmtxEncode(Structure):
-    _fields_ = [
-        ('method', c_int),
-        ('scheme', c_int),
-        ('sizeIdxRequest', c_int),
-        ('marginSize', c_int),
-        ('moduleSize', c_int),
-        ('pixelPacking', c_int),
-        ('imageFlip', c_int),
-        ('rowPadBytes', c_int),
-        ('message', POINTER(DmtxMessage)),
-        ('image', POINTER(DmtxImage)),
-        ('region', DmtxRegion),
-        ('xfrm', DmtxMatrix3),
-        ('rxfrm', DmtxMatrix3),
-    ]
-
-# Globals populated in load_libdmtx
-LIBDMTX = None
-"""ctypes.CDLL
-"""
-
-EXTERNAL_DEPENDENCIES = []
-"""Sequence of instances of ctypes.CDLL
-"""
-
-def load_libdmtx():
-    """Loads the libdmtx shared library.
-
-    Populates the globals LIBDMTX and EXTERNAL_DEPENDENCIES.
-    """
-    global LIBDMTX
-    global EXTERNAL_DEPENDENCIES
-    if not LIBDMTX:
-        LIBDMTX = dmtx_library.load()
-        EXTERNAL_DEPENDENCIES = [LIBDMTX]
-
-    return LIBDMTX
+if LooseVersion(dmtxVersion()) < LooseVersion('0.7.5'):
+    class DmtxEncode(Structure):
+        _fields_ = [
+            ('method', c_int),
+            ('scheme', c_int),
+            ('sizeIdxRequest', c_int),
+            ('marginSize', c_int),
+            ('moduleSize', c_int),
+            ('pixelPacking', c_int),
+            ('imageFlip', c_int),
+            ('rowPadBytes', c_int),
+            ('message', POINTER(DmtxMessage)),
+            ('image', POINTER(DmtxImage)),
+            ('region', DmtxRegion),
+            ('xfrm', DmtxMatrix3),
+            ('rxfrm', DmtxMatrix3),
+        ]
+else:
+    class DmtxEncode(Structure):
+        _fields_ = [
+            ('method', c_int),
+            ('scheme', c_int),
+            ('sizeIdxRequest', c_int),
+            ('marginSize', c_int),
+            ('moduleSize', c_int),
+            ('pixelPacking', c_int),
+            ('imageFlip', c_int),
+            ('rowPadBytes', c_int),
+            ('fnc1', c_int),            # libdmtx 0.7.5 inserts this field
+            ('message', POINTER(DmtxMessage)),
+            ('image', POINTER(DmtxImage)),
+            ('region', DmtxRegion),
+            ('xfrm', DmtxMatrix3),
+            ('rxfrm', DmtxMatrix3),
+        ]
 
 
 # Function signatures
-def libdmtx_function(fname, restype, *args):
-    """Returns a foreign function exported by `libdmtx`.
-
-    Args:
-        fname (:obj:`str`): Name of the exported function as string.
-        restype (:obj:): Return type - one of the `ctypes` primitive C data
-        types.
-        *args: Arguments - a sequence of `ctypes` primitive C data types.
-
-    Returns:
-        cddl.CFunctionType: A wrapper around the function.
-    """
-    prototype = CFUNCTYPE(restype, *args)
-    return prototype((fname, load_libdmtx()))
-
 
 dmtxTimeNow = libdmtx_function('dmtxTimeNow', DmtxTime)
 
