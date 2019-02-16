@@ -1,5 +1,6 @@
 ### v0.1.8
 
+* #34 Python 3.7
 * #22 Use reStructuredText for README
 * #18 Encode support
 * #16 Improve error messages
