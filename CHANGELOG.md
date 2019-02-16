@@ -1,3 +1,7 @@
+### v0.1.9
+
+* #36 Fix Windows build
+
 ### v0.1.8
 
 * #34 Python 3.7
