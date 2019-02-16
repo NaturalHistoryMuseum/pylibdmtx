@@ -1,3 +1,5 @@
+### v0.1.10
+
 ### v0.1.9
 
 * #36 Fix Windows build
