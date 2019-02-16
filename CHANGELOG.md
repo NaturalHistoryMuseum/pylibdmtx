@@ -1,5 +1,7 @@
 ### v0.1.10
 
+* #39 Fix Travis / Python 3.7
+
 ### v0.1.9
 
 * #36 Fix Windows build
