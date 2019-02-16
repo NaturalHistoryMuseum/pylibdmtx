@@ -1,6 +1,6 @@
 ### v0.1.10
 
-* #36 Fix Travis / Python 3.7
+* #39 Fix Travis / Python 3.7
 
 ### v0.1.9
 
