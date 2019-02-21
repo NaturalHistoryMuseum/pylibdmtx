@@ -204,7 +204,8 @@ def _pixel_data(image):
 
         # Check dimensions
         if 0 != len(pixels) % (width * height):
-            raise PyLibDMTXError((
+            raise PyLibDMTXError(
+                (
                     'Inconsistent dimensions: image data of {0} bytes is not '
                     'divisible by (width x height = {1})'
                 ).format(len(pixels), (width * height))

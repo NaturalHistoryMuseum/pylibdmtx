@@ -1,7 +1,7 @@
 """Low-level wrapper around libdmtx's interface
 """
 from ctypes import (
-    cdll, c_double, c_int, c_long, c_size_t, c_ubyte, c_uint, c_ulong,
+    c_double, c_int, c_long, c_size_t, c_ubyte, c_uint, c_ulong,
     c_ulonglong, c_char_p, Structure, CFUNCTYPE, POINTER
 )
 from enum import IntEnum, unique
@@ -27,6 +27,7 @@ LIBDMTX = None
 EXTERNAL_DEPENDENCIES = []
 """List of instances of ctypes.CDLL. Helpful when freezing.
 """
+
 
 def load_libdmtx():
     """Loads the libdmtx shared library.
@@ -69,7 +70,13 @@ DmtxUndefined = -1
 # Define this function early so that it can be used in the definitions below.
 _dmtxVersion = libdmtx_function('dmtxVersion', c_char_p)
 
+
 def dmtxVersion():
+    """Returns the version of the libdmtx libraray
+
+    Returns:
+        str: Version string
+    """
     return _dmtxVersion().decode()
 
 
@@ -132,55 +139,6 @@ class DmtxFlip(IntEnum):
     DmtxFlipNone = 0x00
     DmtxFlipX = 0x01 << 0
     DmtxFlipY = 0x01 << 1
-
-
-@unique
-class DmtxScheme(IntEnum):
-    DmtxSchemeAutoFast = -2
-    DmtxSchemeAutoBest = -1
-    DmtxSchemeAscii = 0
-    DmtxSchemeC40 = 1
-    DmtxSchemeText = 2
-    DmtxSchemeX12 = 3
-    DmtxSchemeEdifact = 4
-    DmtxSchemeBase256 = 5
-
-
-@unique
-class DmtxSymbolSize(IntEnum):
-    DmtxSymbolRectAuto = -3
-    DmtxSymbolSquareAuto = -2
-    DmtxSymbolShapeAuto = -1
-    DmtxSymbol10x10 = 0
-    DmtxSymbol12x12 = 1
-    DmtxSymbol14x14 = 2
-    DmtxSymbol16x16 = 3
-    DmtxSymbol18x18 = 4
-    DmtxSymbol20x20 = 5
-    DmtxSymbol22x22 = 6
-    DmtxSymbol24x24 = 7
-    DmtxSymbol26x26 = 8
-    DmtxSymbol32x32 = 9
-    DmtxSymbol36x36 = 10
-    DmtxSymbol40x40 = 11
-    DmtxSymbol44x44 = 12
-    DmtxSymbol48x48 = 13
-    DmtxSymbol52x52 = 14
-    DmtxSymbol64x64 = 15
-    DmtxSymbol72x72 = 16
-    DmtxSymbol80x80 = 17
-    DmtxSymbol88x88 = 18
-    DmtxSymbol96x96 = 19
-    DmtxSymbol104x104 = 20
-    DmtxSymbol120x120 = 21
-    DmtxSymbol132x132 = 22
-    DmtxSymbol144x144 = 23
-    DmtxSymbol8x18 = 24
-    DmtxSymbol8x32 = 25
-    DmtxSymbol12x26 = 26
-    DmtxSymbol12x36 = 27
-    DmtxSymbol16x36 = 28
-    DmtxSymbol16x48 = 29
 
 
 @unique
