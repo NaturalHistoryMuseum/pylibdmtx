@@ -18,8 +18,7 @@ except ImportError:
     cv2 = None
 
 from pylibdmtx.pylibdmtx import (
-    decode, encode, Decoded, Encoded, Rect, PyLibDMTXError,
-    EXTERNAL_DEPENDENCIES
+    decode, encode, Decoded, Encoded, Rect, EXTERNAL_DEPENDENCIES
 )
 from pylibdmtx.pylibdmtx_error import PyLibDMTXError
 
@@ -106,8 +105,8 @@ class TestDecode(unittest.TestCase):
         self.assertRaisesRegexp(
             PyLibDMTXError,
             (
-                'Unsupported bits-per-pixel: \[40\] Should be one of '
-                '\[8, 16, 24, 32\]'
+                r'Unsupported bits-per-pixel: \[40\] Should be one of '
+                r'\[8, 16, 24, 32\]'
             ),
             decode, data
         )
@@ -118,8 +117,8 @@ class TestDecode(unittest.TestCase):
         self.assertRaisesRegexp(
             PyLibDMTXError,
             (
-                'Inconsistent dimensions: image data of 10 bytes is not '
-                'divisible by \(width x height = 9\)'
+                r'Inconsistent dimensions: image data of 10 bytes is not '
+                r'divisible by \(width x height = 9\)'
             ),
             decode, data
         )
