@@ -91,10 +91,11 @@ The ``encode`` function generates an image containing a Data Matrix barcode:
 ::
 
   >>> from pylibdmtx.pylibdmtx import encode
-  >>> encoded = encode('hello world')
+  >>> encoded = encode('hello world'.encode('utf8'))
   >>> img = Image.frombytes('RGB', (encoded.width, encoded.height), encoded.pixels)
   >>> img.save('dmtx.png')
-
+  >>> print(decode(Image.open('dmtx.png')))
+[Decoded(data=b'hello world', rect=Rect(left=9, top=10, width=80, height=79))]
 
 Windows error message
 ---------------------

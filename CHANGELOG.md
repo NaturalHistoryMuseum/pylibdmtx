@@ -1,6 +1,7 @@
 ### v0.1.10
 
 * #39 Fix Travis / Python 3.7
+* #41 Alter encoding example to show utf-8 encoding
 
 ### v0.1.9
 
