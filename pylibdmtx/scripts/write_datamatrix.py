@@ -32,6 +32,10 @@ def main(args=None):
         choices=ENCODING_SCHEME_NAMES
     )
     parser.add_argument(
+        '--module_size',
+        help="Module size in pixels; default is '5'"
+    )
+    parser.add_argument(
         '-v', '--version', action='version',
         version='%(prog)s ' + pylibdmtx.__version__
     )
@@ -40,7 +44,7 @@ def main(args=None):
     from PIL import Image
 
     encoded = encode(
-        args.data.encode('utf-8'), size=args.size, scheme=args.scheme
+        args.data.encode('utf-8'), size=args.size, scheme=args.scheme, module_size=args.module_size
     )
     im = Image.frombytes('RGB', (encoded.width, encoded.height), encoded.pixels)
     im.save(args.file)

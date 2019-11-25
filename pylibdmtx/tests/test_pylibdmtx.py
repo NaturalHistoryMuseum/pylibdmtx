@@ -170,6 +170,15 @@ class TestEncode(unittest.TestCase):
 
         self._assert_encoded_data(data, encoded)
 
+    def test_encode_module_size(self):
+        data = b'hello world'
+        encoded = encode(data, size='36x36', module_size=2)
+
+        self.assertEqual(
+            Encoded(width=92, height=92, bpp=24, pixels=None),
+            encoded._replace(pixels=None)
+        )
+
     def test_invalid_scheme(self):
         self.assertRaisesRegexp(
             PyLibDMTXError,

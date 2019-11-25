@@ -309,7 +309,7 @@ def _encoder():
         dmtxEncodeDestroy(byref(encoder))
 
 
-def encode(data, scheme=None, size=None):
+def encode(data, scheme=None, size=None, module_size=None):
     """
     Encodes `data` in a DataMatrix image.
 
@@ -321,6 +321,8 @@ def encode(data, scheme=None, size=None):
             If `None`, defaults to 'Ascii'.
         size: image dimensions - one of `ENCODING_SIZE_NAMES`, or `None`.
             If `None`, defaults to 'ShapeAuto'.
+        module_size: Module size in pixels, or `None`.
+            If `None`, defaults to 5
 
     Returns:
         Encoded: with properties `(width, height, bpp, pixels)`.
@@ -352,9 +354,12 @@ def encode(data, scheme=None, size=None):
         )
     scheme = getattr(DmtxScheme, scheme_name)
 
+    module_size = module_size if module_size else 5
+
     with _encoder() as encoder:
         dmtxEncodeSetProp(encoder, DmtxProperty.DmtxPropScheme, scheme)
         dmtxEncodeSetProp(encoder, DmtxProperty.DmtxPropSizeRequest, size)
+        dmtxEncodeSetProp(encoder, DmtxProperty.DmtxPropModuleSize, module_size)
 
         if dmtxEncodeDataMatrix(encoder, len(data), cast(data, c_ubyte_p)) == 0:
             raise PyLibDMTXError(
