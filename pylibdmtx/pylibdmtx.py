@@ -170,7 +170,7 @@ def _decode_region(decoder, region, corrections, shrink):
             x1 = int((shrink * p11.X) + 0.5)
             y1 = int((shrink * p11.Y) + 0.5)
             return Decoded(
-                string_at(msg.contents.output),
+                string_at(msg.contents.output, msg.contents.outputIdx),
                 Rect(x0, y0, x1 - x0, y1 - y0)
             )
         else:
