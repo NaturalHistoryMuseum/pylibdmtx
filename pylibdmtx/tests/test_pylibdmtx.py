@@ -160,15 +160,40 @@ class TestEncode(unittest.TestCase):
 
     def test_encode_scheme(self):
         data = b'hello world'
-        encoded = encode(data, scheme='Base256')
+        encoded = encode(data, scheme="Base256")
 
         # Check returned data, with the exception of the pixel data
         self.assertEqual(
             Encoded(width=110, height=110, bpp=24, pixels=None),
-            encoded._replace(pixels=None)
+            encoded._replace(pixels=None),
         )
 
         self._assert_encoded_data(data, encoded)
+
+    def test_encode_all_schemes(self):
+        data_mixed = b'Hello World 1*'
+        data_upper = b'HELLO WORLD 1*'
+
+        # Go through all supported encodings and check their output
+        for scheme, expected_size in dict(
+            Ascii=110,
+            C40=110,
+            Text=100,
+            X12=100,
+            Edifact=100,
+            Base256=110,
+        ).items():
+            data = data_upper if scheme in ["X12","Edifact"] else data_mixed
+            encoded = encode(data, scheme=scheme)
+
+            # Check returned data, with the exception of the pixel data
+            self.assertEqual(
+                Encoded(width=expected_size, height=expected_size, bpp=24, pixels=None),
+                encoded._replace(pixels=None),
+                'Failure with encoding scheme "{0}"'.format(scheme)
+            )
+
+            self._assert_encoded_data(data, encoded)
 
     def test_invalid_scheme(self):
         self.assertRaisesRegexp(
