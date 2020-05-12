@@ -176,6 +176,7 @@ class TestEncode(unittest.TestCase):
 
         # Go through all supported encodings and check their output
         for scheme, expected_size in dict(
+            AutoBest=100,
             Ascii=110,
             C40=110,
             Text=100,
