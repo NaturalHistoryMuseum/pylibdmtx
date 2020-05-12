@@ -342,7 +342,7 @@ def encode(data, scheme=None, size=None):
 
     scheme = scheme if scheme else 'Ascii'
     scheme_name = '{0}{1}'.format(
-        ENCODING_SCHEME_PREFIX, scheme.capitalize()
+        ENCODING_SCHEME_PREFIX, scheme
     )
     if not hasattr(DmtxScheme, scheme_name):
         raise PyLibDMTXError(
