@@ -242,7 +242,7 @@ class DmtxImage(Structure):
 
 class DmtxTime(Structure):
     _fields_ = [
-        ('sec', c_ulonglong),      # Actually a time_t
+        ('sec', c_ulong),      # Actually a time_t
         ('usec', c_ulong),
     ]
 
