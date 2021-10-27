@@ -1,3 +1,7 @@
+### v0.1.11
+
+* #67 Python 3.8., 3.9 and 3.10; drop support for Python 3.4
+
 ### v0.1.10
 
 * #39 Fix Travis / Python 3.7
