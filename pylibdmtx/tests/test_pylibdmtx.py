@@ -17,6 +17,11 @@ try:
 except ImportError:
     cv2 = None
 
+try:
+    import imageio
+except ImportError:
+    imageio = None
+
 from pylibdmtx.pylibdmtx import (
     decode, encode, Decoded, Encoded, Rect, EXTERNAL_DEPENDENCIES
 )
@@ -76,6 +81,12 @@ class TestDecode(unittest.TestCase):
     def test_decode_numpy(self):
         "Read image using Pillow and convert to numpy.ndarray"
         res = decode(np.asarray(self.datamatrix))
+        self.assertEqual(self.EXPECTED, res)
+
+    @unittest.skipIf(imageio is None, 'imageio not installed')
+    def test_decode_imageio(self):
+        "Read image using imageio"
+        res = decode(imageio.imread(TESTDATA.joinpath('datamatrix.png')))
         self.assertEqual(self.EXPECTED, res)
 
     @unittest.skipIf(cv2 is None, 'OpenCV not installed')
