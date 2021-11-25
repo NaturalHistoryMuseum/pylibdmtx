@@ -1,14 +1,14 @@
 pylibdmtx
 =========
 
-.. image:: https://img.shields.io/badge/python-2.7%2C%203.4%2C%203.5%2C%203.6%2C%203.7-blue.svg
+.. image:: https://img.shields.io/badge/python-2.7%2C%203.5%2C%203.6%2C%203.7%2C%203.8%2C%203.9%2C%203.10-blue.svg
     :target: https://github.com/NaturalHistoryMuseum/pylibdmtx
 
 .. image:: https://badge.fury.io/py/pylibdmtx.svg
     :target: https://pypi.python.org/pypi/pylibdmtx
 
-.. image:: https://travis-ci.org/NaturalHistoryMuseum/pylibdmtx.svg?branch=master
-    :target: https://travis-ci.org/NaturalHistoryMuseum/pylibdmtx
+.. image:: https://img.shields.io/github/workflow/status/NaturalHistoryMuseum/pylibdmtx/Tests/master?label=tests
+    :target: https://github.com/NaturalHistoryMuseum/pylibdmtx/actions?query=workflow%3A%22Tests%22
 
 .. image:: https://coveralls.io/repos/github/NaturalHistoryMuseum/pylibdmtx/badge.svg?branch=master
     :target: https://coveralls.io/github/NaturalHistoryMuseum/pylibdmtx?branch=master
@@ -17,10 +17,10 @@ Read and write Data Matrix barcodes from Python 2 and 3 using the
 `libdmtx <http://libdmtx.sourceforge.net/>`__ library.
 
 -  Pure python
--  Works with PIL / Pillow images, OpenCV / numpy ``ndarray``\ s, and raw bytes
+-  Works with PIL / Pillow images, OpenCV / imageio / numpy ``ndarray``\ s, and raw bytes
 -  Decodes locations of barcodes
 -  No dependencies, other than the libdmtx library itself
--  Tested on Python 2.7, and Python 3.4 to 3.7
+-  Tested on Python 2.7, and Python 3.5 to 3.10
 
 The older
 `pydmtx <https://sourceforge.net/p/libdmtx/dmtx-wrappers/ci/master/tree/python/>`__
@@ -95,7 +95,7 @@ The ``encode`` function generates an image containing a Data Matrix barcode:
   >>> img = Image.frombytes('RGB', (encoded.width, encoded.height), encoded.pixels)
   >>> img.save('dmtx.png')
   >>> print(decode(Image.open('dmtx.png')))
-[Decoded(data=b'hello world', rect=Rect(left=9, top=10, width=80, height=79))]
+  [Decoded(data=b'hello world', rect=Rect(left=9, top=10, width=80, height=79))]
 
 Windows error message
 ---------------------

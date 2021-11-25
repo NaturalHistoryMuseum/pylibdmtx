@@ -183,12 +183,16 @@ def _pixel_data(image):
     Returns:
         :obj: `tuple` (pixels, width, height, bpp)
     """
-    # Test for PIL.Image and numpy.ndarray without requiring that cv2 or PIL
-    # are installed.
-    if 'PIL.' in str(type(image)):
+    # Test for PIL.Image, numpy.ndarray, and imageio.core.util without
+    # requiring that cv2, PIL, or imageio are installed.
+
+    image_type = str(type(image))
+    if 'PIL.' in image_type:
         pixels = image.tobytes()
         width, height = image.size
-    elif 'numpy.ndarray' in str(type(image)):
+    elif 'numpy.ndarray' in image_type or 'imageio.core.util' in image_type:
+        # Different versions of imageio use a subclass of numpy.ndarray
+        # called either imageio.core.util.Image or imageio.core.util.Array.
         if 'uint8' != str(image.dtype):
             image = image.astype('uint8')
         try:

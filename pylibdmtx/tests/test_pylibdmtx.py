@@ -17,6 +17,11 @@ try:
 except ImportError:
     cv2 = None
 
+try:
+    import imageio
+except ImportError:
+    imageio = None
+
 from pylibdmtx.pylibdmtx import (
     decode, encode, Decoded, Encoded, Rect, EXTERNAL_DEPENDENCIES
 )
@@ -38,12 +43,18 @@ class TestDecode(unittest.TestCase):
         )
     ]
 
-    def setUp(self):
-        self.datamatrix = Image.open(str(TESTDATA.joinpath('datamatrix.png')))
-        self.empty = Image.open(str(TESTDATA.joinpath('empty.png')))
+    @classmethod
+    def setUpClass(cls):
+        cls.datamatrix = Image.open(str(TESTDATA.joinpath('datamatrix.png')))
+        cls.empty = Image.open(str(TESTDATA.joinpath('empty.png')))
 
-    def tearDown(self):
-        self.datamatrix = self.empty = None
+        # assertRaisesRegexp was a deprecated alias removed in Python 3.11
+        if not hasattr(cls, 'assertRaisesRegex'):
+            cls.assertRaisesRegex = cls.assertRaisesRegexp
+
+    @classmethod
+    def tearDownClass(cls):
+        cls.datamatrix = cls.empty = None
 
     def test_decode(self):
         "Read both barcodes in `datamatrix.png`"
@@ -72,6 +83,12 @@ class TestDecode(unittest.TestCase):
         res = decode(np.asarray(self.datamatrix))
         self.assertEqual(self.EXPECTED, res)
 
+    @unittest.skipIf(imageio is None, 'imageio not installed')
+    def test_decode_imageio(self):
+        "Read image using imageio"
+        res = decode(imageio.imread(TESTDATA.joinpath('datamatrix.png')))
+        self.assertEqual(self.EXPECTED, res)
+
     @unittest.skipIf(cv2 is None, 'OpenCV not installed')
     def test_decode_opencv(self):
         "Read image using OpenCV"
@@ -86,7 +103,7 @@ class TestDecode(unittest.TestCase):
     @patch('pylibdmtx.pylibdmtx.dmtxImageCreate')
     def test_dmtxImageCreate_failed(self, dmtxImageCreate):
         dmtxImageCreate.return_value = None
-        self.assertRaisesRegexp(
+        self.assertRaisesRegex(
             PyLibDMTXError, 'Could not create image', decode, self.datamatrix
         )
         self.assertEqual(1, dmtxImageCreate.call_count)
@@ -94,7 +111,7 @@ class TestDecode(unittest.TestCase):
     @patch('pylibdmtx.pylibdmtx.dmtxDecodeCreate')
     def test_dmtxDecodeCreate_failed(self, dmtxDecodeCreate):
         dmtxDecodeCreate.return_value = None
-        self.assertRaisesRegexp(
+        self.assertRaisesRegex(
             PyLibDMTXError, 'Could not create decoder', decode, self.datamatrix
         )
         self.assertEqual(1, dmtxDecodeCreate.call_count)
@@ -102,7 +119,7 @@ class TestDecode(unittest.TestCase):
     def test_unsupported_bits_per_pixel(self):
         # 40 bits-per-pixel
         data = (list(range(3 * 3 * 5)), 3, 3)
-        self.assertRaisesRegexp(
+        self.assertRaisesRegex(
             PyLibDMTXError,
             (
                 r'Unsupported bits-per-pixel: \[40\] Should be one of '
@@ -114,7 +131,7 @@ class TestDecode(unittest.TestCase):
     def test_inconsistent_dimensions(self):
         # Image data has ten bytes. width x height indicates nine bytes
         data = (list(range(10)), 3, 3)
-        self.assertRaisesRegexp(
+        self.assertRaisesRegex(
             PyLibDMTXError,
             (
                 r'Inconsistent dimensions: image data of 10 bytes is not '
@@ -125,6 +142,12 @@ class TestDecode(unittest.TestCase):
 
 
 class TestEncode(unittest.TestCase):
+    @classmethod
+    def setUpClass(cls):
+        # assertRaisesRegexp was a deprecated alias removed in Python 3.11
+        if not hasattr(cls, 'assertRaisesRegex'):
+            cls.assertRaisesRegex = cls.assertRaisesRegexp
+
     def _assert_encoded_data(self, expected_data, encoded):
         # Check encoded data
         image = Image.frombytes(
@@ -197,21 +220,21 @@ class TestEncode(unittest.TestCase):
             self._assert_encoded_data(data, encoded)
 
     def test_invalid_scheme(self):
-        self.assertRaisesRegexp(
+        self.assertRaisesRegex(
             PyLibDMTXError,
             r"Invalid scheme \[asdf\]: should be one of \['Ascii",
             encode, b' ', scheme='asdf'
         )
 
     def test_invalid_size(self):
-        self.assertRaisesRegexp(
+        self.assertRaisesRegex(
             PyLibDMTXError,
             r"Invalid size \[9x9\]: should be one of \['RectAuto'",
             encode, b' ', size='9x9'
         )
 
     def test_image_not_large_enough(self):
-        self.assertRaisesRegexp(
+        self.assertRaisesRegex(
             PyLibDMTXError,
             'Could not encode data, possibly because the image is not '
             'large enough to contain the data',

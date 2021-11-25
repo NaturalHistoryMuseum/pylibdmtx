@@ -1,28 +1,21 @@
 ## Development
 
 ```
-mkvirtualenv pylibdmtx
+python -m venv venv
+source ./venv/bin/activate
 pip install -U pip
-pip install -r requirements.pip
+pip install -r requirements.txt
 
-nosetests
+python -m pytest --verbose --cov=pylibdmtx --cov-report=term-missing --cov-report=html pylibdmtx
 python -m pylibdmtx.scripts.read_datamatrix pylibdmtx/tests/datamatrix.png
 ```
 
-### Testing python versions
+### Test matrix of supported Python versions
 
-Make a virtual env and install `tox`
-
-```
-mkvirtualenv tox
-pip install tox
-```
-
-If you use non-standard locations for your Python builds, make the interpreters available on the `PATH` before running `tox`.
+Run tox
 
 ```
-PATH=~/local/python-2.7.15/bin:~/local/python-3.4.9/bin:~/local/python-3.5.6/bin:~/local/python-3.6.8/bin:~/local/python-3.7.2/bin:$PATH
-tox
+rm -rf .tox && tox
 ```
 
 ### Windows
@@ -37,13 +30,8 @@ in a frozen binary.
 
 ## Releasing
 
-1. Install tools.
+1. Build
 
-```
-pip install wheel
-```
-
-2. Build
     Create source and wheel builds. The `win32` and `win_amd64` wheels will
     contain the appropriate `libdmtx.dll`.
 
@@ -63,23 +51,21 @@ pip install wheel
     rm -rf build MANIFEST.in pylibdmtx.egg-info
     ```
 
-3. Release to pypitest (see https://packaging.python.org/guides/using-testpypi/)
+2. Release to pypitest (see https://packaging.python.org/guides/using-testpypi/)
 
     ```
-    mkvirtualenv pypi
-    pip install twine
     twine upload -r testpypi dist/*
     ```
 
-4. Test the release to pypitest
+3. Test the release to pypitest
 
     * Check https://testpypi.python.org/pypi/pylibdmtx/
 
     * If you are on Windows
 
     ```
-    set PATH=%PATH%;c:\python35\;c:\python35\scripts
-    \Python35\Scripts\mkvirtualenv.bat --python=c:\python27\python.exe test1
+    c:\python27\python.exe -m venv test1
+    test1\scripts\activate
     ```
 
     * Install dependencies that are not on testpypi.python.org.
@@ -110,7 +96,7 @@ pip install wheel
     read_datamatrix <path-to-datamatrix.png>
     ```
 
-5. If all is well, release to PyPI
+4. If all is well, release to PyPI
 
     ```
     twine upload dist/*
