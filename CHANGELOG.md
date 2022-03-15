@@ -1,12 +1,9 @@
-### v0.1.11
+### v0.1.10
 
 * #68 Add support for images loaded using imageio
 * #67 Python 3.8., 3.9 and 3.10; drop support for Python 3.4
-
-### v0.1.10
-
-* #39 Fix Travis / Python 3.7
 * #41 Alter encoding example to show utf-8 encoding
+* #39 Fix Travis / Python 3.7
 
 ### v0.1.9
 
