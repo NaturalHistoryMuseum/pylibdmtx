@@ -146,11 +146,13 @@ def _decoded_matrix_region(decoder, region, corrections):
             dmtxMessageDestroy(byref(message))
 
 
-def _decode_region(decoder, region, corrections, shrink):
+def _decode_region(decoder, region, corrections, shrink, binary=False):
     """Decodes and returns the value in a region.
 
     Args:
         region (DmtxRegion):
+        binary (boolean): flag to set interepretation of decoded message as binary bytes rather 
+            than as a zero terminated cstring.
 
     Yields:
         Decoded or None: The decoded value.
@@ -169,8 +171,13 @@ def _decode_region(decoder, region, corrections, shrink):
             y0 = int((shrink * p00.Y) + 0.5)
             x1 = int((shrink * p11.X) + 0.5)
             y1 = int((shrink * p11.Y) + 0.5)
+            if binary:
+                decodedbuf = cast(msg.contents.output, ctypes.POINTER(ctypes.c_ubyte * msg.contents.outputIdx))[0]
+                payload = bytes(decodedbuf)
+            else:
+                payload = string_at(msg.contents.output)
             return Decoded(
-                string_at(msg.contents.output),
+                payload,
                 Rect(x0, y0, x1 - x0, y1 - y0)
             )
         else:
@@ -229,7 +236,7 @@ def _pixel_data(image):
 
 def decode(image, timeout=None, gap_size=None, shrink=1, shape=None,
            deviation=None, threshold=None, min_edge=None, max_edge=None,
-           corrections=None, max_count=None):
+           corrections=None, max_count=None, binary=False):
     """Decodes datamatrix barcodes in `image`.
 
     Args:
@@ -245,7 +252,8 @@ def decode(image, timeout=None, gap_size=None, shrink=1, shape=None,
         corrections (int):
         max_count (int): stop after reading this many barcodes. `None` to read
             as many as possible.
-
+        binary (boolean): tells decoder to interpret decoded message as binary bytes rather 
+            than as a zero terminated cstring
     Returns:
         :obj:`list` of :obj:`Decoded`: The values decoded from barcodes.
     """
@@ -289,7 +297,7 @@ def decode(image, timeout=None, gap_size=None, shrink=1, shape=None,
                     else:
                         # Decoded
                         res = _decode_region(
-                            decoder, region, corrections, shrink
+                            decoder, region, corrections, shrink, binary=binary
                         )
                         if res:
                             results.append(res)
