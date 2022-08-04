@@ -313,7 +313,8 @@ def _encoder():
         dmtxEncodeDestroy(byref(encoder))
 
 
-def encode(data, scheme=None, size=None):
+def encode(data, scheme=None, size=None,
+           marginSize=None, moduleSize=None, fnc1=None):
     """
     Encodes `data` in a DataMatrix image.
 
@@ -323,8 +324,16 @@ def encode(data, scheme=None, size=None):
         data: bytes instance
         scheme: encoding scheme - one of `ENCODING_SCHEME_NAMES`, or `None`.
             If `None`, defaults to 'Ascii'.
-        size: image dimensions - one of `ENCODING_SIZE_NAMES`, or `None`.
+        size: requested image dimensions - one of `ENCODING_SIZE_NAMES`, or `None`.
             If `None`, defaults to 'ShapeAuto'.
+        marginSize: int (in pixels) or `None`.
+            If `None`, uses libdmtx default (10 px).
+            Margin is applied to each edge of the data matrix
+        moduleSize: int (in pixels) or `None`.
+            If `None`, uses libdmtx default (5 px).
+        fnc1: int
+            Character to represent FNC1 (Function Code 1) or `None`.
+            If `None`, uses libdmtx default (DmtxUndefined).
 
     Returns:
         Encoded: with properties `(width, height, bpp, pixels)`.
@@ -359,6 +368,13 @@ def encode(data, scheme=None, size=None):
     with _encoder() as encoder:
         dmtxEncodeSetProp(encoder, DmtxProperty.DmtxPropScheme, scheme)
         dmtxEncodeSetProp(encoder, DmtxProperty.DmtxPropSizeRequest, size)
+        if marginSize:
+            dmtxEncodeSetProp(encoder, DmtxProperty.DmtxPropMarginSize, marginSize)
+        if moduleSize:
+            dmtxEncodeSetProp(encoder, DmtxProperty.DmtxPropModuleSize, moduleSize)
+        if fnc1:
+            dmtxEncodeSetProp(encoder, DmtxProperty.DmtxPropFnc1, fnc1)
+        
 
         if dmtxEncodeDataMatrix(encoder, len(data), cast(data, c_ubyte_p)) == 0:
             raise PyLibDMTXError(
