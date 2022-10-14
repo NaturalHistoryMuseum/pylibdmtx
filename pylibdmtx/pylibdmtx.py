@@ -37,7 +37,7 @@ ENCODING_SIZE_NAMES = [
 
 # A rectangle
 Rect = namedtuple('Rect', 'left top width height')
-Rect_corners = namedtuple('Rect', 'P0 P1 P3 P4')
+Rect_vertices = namedtuple('Rect', 'P0 P1 P3 P4')
 
 # Results of reading a barcode
 Decoded = namedtuple('Decoded', 'data rect')
@@ -147,7 +147,7 @@ def _decoded_matrix_region(decoder, region, corrections):
             dmtxMessageDestroy(byref(message))
 
 
-def _decode_region(decoder, region, corrections, shrink, four_corners):
+def _decode_region(decoder, region, corrections, shrink, return_vertices=False):
     """Decodes and returns the value in a region.
 
     Args:
@@ -176,10 +176,10 @@ def _decode_region(decoder, region, corrections, shrink, four_corners):
             x01 = int((shrink * p01.X) + 0.5)
             y01 = int((shrink * p01.Y) + 0.5)
 
-            if four_corners:
+            if return_vertices:
                 return Decoded(
                     string_at(msg.contents.output),
-                    Rect_corners((x00,y00), (x01,y01), (x10,y10), (x11,y11))
+                    Rect_vertices((x00,y00), (x01,y01), (x10,y10), (x11,y11))
                 )
             else:
                 min_x = min(x00, x11, x10, x01)
@@ -248,7 +248,7 @@ def _pixel_data(image):
 
 def decode(image, timeout=None, gap_size=None, shrink=1, shape=None,
            deviation=None, threshold=None, min_edge=None, max_edge=None,
-           corrections=None, max_count=None, four_corners=False):
+           corrections=None, max_count=None, return_vertices=False):
     """Decodes datamatrix barcodes in `image`.
 
     Args:
@@ -264,7 +264,7 @@ def decode(image, timeout=None, gap_size=None, shrink=1, shape=None,
         corrections (int):
         max_count (int): stop after reading this many barcodes. `None` to read
             as many as possible.
-        four_corners: If to return the four corners of the matrix or just one + width/height
+        return_vertices: If to return the coordinates of the four vertices of the datamatrix or just one + width/height
 
     Returns:
         :obj:`list` of :obj:`Decoded`: The values decoded from barcodes.
@@ -309,7 +309,7 @@ def decode(image, timeout=None, gap_size=None, shrink=1, shape=None,
                     else:
                         # Decoded
                         res = _decode_region(
-                            decoder, region, corrections, shrink, four_corners
+                            decoder, region, corrections, shrink, return_vertices
                         )
                         if res:
                             results.append(res)
