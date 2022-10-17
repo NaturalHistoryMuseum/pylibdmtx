@@ -37,7 +37,7 @@ ENCODING_SIZE_NAMES = [
 
 # A rectangle
 Rect = namedtuple('Rect', 'left top width height')
-Rect_vertices = namedtuple('Rect', 'P0 P1 P3 P4')
+Rect_vertices = namedtuple('Rect', 'P0 P1 P2 P3')
 
 # Results of reading a barcode
 Decoded = namedtuple('Decoded', 'data rect')
