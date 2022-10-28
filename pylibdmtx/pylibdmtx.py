@@ -313,7 +313,7 @@ def _encoder():
         dmtxEncodeDestroy(byref(encoder))
 
 
-def encode(data, scheme=None, size=None):
+def encode(data, scheme=None, size=None, **kwargs):
     """
     Encodes `data` in a DataMatrix image.
 
@@ -359,6 +359,15 @@ def encode(data, scheme=None, size=None):
     with _encoder() as encoder:
         dmtxEncodeSetProp(encoder, DmtxProperty.DmtxPropScheme, scheme)
         dmtxEncodeSetProp(encoder, DmtxProperty.DmtxPropSizeRequest, size)
+
+        for prop_name,prop_value in kwargs.items():
+            try:
+                prop=getattr(DmtxProperty,prop_name)
+            except AttributeError:
+                continue
+
+            dmtxEncodeSetProp(encoder,prop,prop_value)
+
 
         if dmtxEncodeDataMatrix(encoder, len(data), cast(data, c_ubyte_p)) == 0:
             raise PyLibDMTXError(
