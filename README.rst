@@ -117,7 +117,7 @@ Feel free to submit a PR to address any of these.
    `pydmtxmodule.c <https://sourceforge.net/p/libdmtx/dmtx-wrappers/ci/master/tree/python/>`__); there might be more of ``libdmtx``\ ’s functionality that could usefully
    be exposed
 
--  I exposed the bare minimum of functions, defines, enums and typedefs neede to
+-  I exposed the bare minimum of functions, defines, enums and typedefs needed to
    reimplement ``pydmtx``\ ’s ``decode`` function
 
 Contributors
@@ -129,6 +129,6 @@ Contributors
 License
 -------
 
-``pylibdmtx`` is distributed under the MIT license (see ``LICENCE.txt``).
+``pylibdmtx`` is distributed under the MIT license (see ``LICENSE.txt``).
 The ``libdmtx`` shared library is distributed under the Simplified BSD license
-(see ``libdmtx-LICENCE.txt``).
+(see ``libdmtx-LICENSE.txt``).
