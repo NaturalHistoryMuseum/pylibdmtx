@@ -37,7 +37,7 @@ ENCODING_SIZE_NAMES = [
 
 # A rectangle
 Rect = namedtuple('Rect', 'left top width height')
-Rect_vertices = namedtuple('Rect', 'P0 P1 P2 P3')
+Rect_vertices = namedtuple('Rect_vertices', 'P0 P1 P2 P3')
 
 # Results of reading a barcode
 Decoded = namedtuple('Decoded', 'data rect')
@@ -189,7 +189,7 @@ def _decode_region(decoder, region, corrections, shrink, return_vertices=False):
 
                 return Decoded(
                     string_at(msg.contents.output),
-                    Rect(min_x, min_y, max_x - min_x, min_y - max_y)
+                    Rect(min_x, min_y, max_x - min_x, max_y - min_y)
                     )
 
         else:
