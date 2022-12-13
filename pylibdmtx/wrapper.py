@@ -195,7 +195,7 @@ DmtxMatrix3 = c_double * 3 * 3
 
 
 # Structs
-def _dmtx_older_than_0_7_5() -> bool:
+def _dmtx_older_than_0_7_5():
     """Return if running an older version of libdmtx (structs will have fewer fields).
 
     This function is a whittled-down version of the deprecated `distutils`
