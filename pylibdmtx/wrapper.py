@@ -5,7 +5,6 @@ from ctypes import (
     c_ulonglong, c_char_p, Structure, CFUNCTYPE, POINTER
 )
 from enum import IntEnum, unique
-from distutils.version import LooseVersion
 
 from . import dmtx_library
 
@@ -196,7 +195,25 @@ DmtxMatrix3 = c_double * 3 * 3
 
 
 # Structs
-if LooseVersion(dmtxVersion()) < LooseVersion('0.7.5'):
+def _dmtx_older_than_0_7_5():
+    """Return if running an older version of libdmtx (structs will have fewer fields).
+
+    This function is a whittled-down version of the deprecated `distutils`
+    helper `LooseVersion`: it only handles numeric versions, since all versions of
+    `libdmtx` (at least up to 0.7.5) used simple numeric versioning.
+
+    There's no indications that `libdmtx` will move away from numeric versions,
+    but all this function needs to know is if we are on an older version (so
+    whatever they choose to do in the future is not relevant).
+    """
+    components = dmtxVersion().split('.')
+    try:
+        int_components = tuple(int(part) for part in components)
+    except ValueError:
+        return False
+    return int_components < (0, 7, 5)
+
+if _dmtx_older_than_0_7_5():
     class DmtxMessage(Structure):
         _fields_ = [
             ('arraySize', c_size_t),
@@ -310,7 +327,7 @@ class DmtxScanGrid(Structure):
     ]
 
 
-if LooseVersion(dmtxVersion()) < LooseVersion('0.7.5'):
+if _dmtx_older_than_0_7_5():
     class DmtxDecode(Structure):
         _fields_ = [
             ('edgeMin', c_int),
@@ -398,7 +415,7 @@ class DmtxRegion(Structure):
     ]
 
 
-if LooseVersion(dmtxVersion()) < LooseVersion('0.7.5'):
+if _dmtx_older_than_0_7_5():
     class DmtxEncode(Structure):
         _fields_ = [
             ('method', c_int),
