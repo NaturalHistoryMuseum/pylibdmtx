@@ -66,6 +66,9 @@ c_ubyte_p = POINTER(c_ubyte)
 
 # Defines and enums
 DmtxUndefined = -1
+DmtxTrue = 1
+DmtxFalse = 0
+
 
 # Define this function early so that it can be used in the definitions below.
 _dmtxVersion = libdmtx_function('dmtxVersion', c_char_p)
@@ -78,6 +81,27 @@ def dmtxVersion():
         str: Version string
     """
     return _dmtxVersion().decode()
+
+
+if LooseVersion(dmtxVersion()) < LooseVersion('0.7.7'):
+    def dmtxReaderProgramming():
+        """Returns False, feature not present on older verion.
+
+        Returns:
+            bool: Feature not enabled
+        """
+        return False
+else:
+    _dmtxReaderProgramming = libdmtx_function('dmtxReaderProgramming', c_uint)
+
+    def dmtxReaderProgramming():
+        """Returns true if Reader Programming feature was configured at build time.
+
+        Returns:
+            bool: Feature enabled or not
+        """
+        _ret_val = True if _dmtxReaderProgramming() == 1 else False
+        return _ret_val
 
 
 @unique
@@ -193,6 +217,7 @@ class DmtxSymbolSize(IntEnum):
 # Types
 DmtxPassFail = c_uint
 DmtxMatrix3 = c_double * 3 * 3
+DmtxBoolean = c_uint
 
 
 # Structs
@@ -543,10 +568,30 @@ dmtxEncodeSetProp = libdmtx_function(
     c_int     # value
 )
 
-dmtxEncodeDataMatrix = libdmtx_function(
-    'dmtxEncodeDataMatrix',
-    DmtxPassFail,
-    POINTER(DmtxEncode),
-    c_int,
-    POINTER(c_ubyte)
-)
+if LooseVersion(dmtxVersion()) < LooseVersion('0.7.7'):
+    dmtxEncodeDataMatrix = libdmtx_function(
+        'dmtxEncodeDataMatrix',
+        DmtxPassFail,
+        POINTER(DmtxEncode),
+        c_int,
+        POINTER(c_ubyte)
+    )
+else:
+    if dmtxReaderProgramming():
+        dmtxEncodeDataMatrix = libdmtx_function(
+            'dmtxEncodeDataMatrix',
+            DmtxPassFail,
+            POINTER(DmtxEncode),
+            c_int,
+            POINTER(c_ubyte),
+            DmtxBoolean
+        )
+    else:
+        dmtxEncodeDataMatrix = libdmtx_function(
+            'dmtxEncodeDataMatrix',
+            DmtxPassFail,
+            POINTER(DmtxEncode),
+            c_int,
+            POINTER(c_ubyte)
+        )
+
