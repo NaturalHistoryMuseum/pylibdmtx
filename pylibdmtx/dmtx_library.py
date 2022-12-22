@@ -2,6 +2,7 @@
 """
 import platform
 import sys
+from glob import glob
 
 from ctypes import cdll
 from ctypes.util import find_library
@@ -41,8 +42,15 @@ def load():
                 str(Path(__file__).parent.joinpath(fname))
             )
     else:
-        # Assume a shared library on the path
-        path = find_library('dmtx')
+        # First search on local folder
+        _lib_search = glob(f"{Path(__file__).parent.joinpath('*dmtx*.so.*.*.*')}", recursive=True)
+        path = None
+        if _lib_search:
+            path = _lib_search[0]
+        else:
+            # Assume a shared library on the path
+            path = find_library('dmtx')
+
         if not path:
             raise ImportError('Unable to find dmtx shared library')
         libdmtx = cdll.LoadLibrary(path)
