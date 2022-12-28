@@ -6,7 +6,7 @@ import sys
 
 import pylibdmtx
 from pylibdmtx.pylibdmtx import (
-    encode, ENCODING_SIZE_NAMES, ENCODING_SCHEME_NAMES
+    encode, ENCODING_SIZE_NAMES, ENCODING_SCHEME_NAMES, DmtxFalse, DmtxTrue
 )
 
 
@@ -32,6 +32,9 @@ def main(args=None):
         choices=ENCODING_SCHEME_NAMES
     )
     parser.add_argument(
+        '-r', '--reader-programming', action='store_true'
+    )
+    parser.add_argument(
         '-v', '--version', action='version',
         version='%(prog)s ' + pylibdmtx.__version__
     )
@@ -39,8 +42,12 @@ def main(args=None):
 
     from PIL import Image
 
+    _rp = DmtxFalse
+    if args.reader_programming:
+        _rp = DmtxTrue
+
     encoded = encode(
-        args.data.encode('utf-8'), size=args.size, scheme=args.scheme
+        args.data.encode('utf-8'), size=args.size, scheme=args.scheme, reader_programming=_rp
     )
     im = Image.frombytes('RGB', (encoded.width, encoded.height), encoded.pixels)
     im.save(args.file)
