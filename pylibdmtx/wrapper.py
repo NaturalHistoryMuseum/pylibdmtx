@@ -29,6 +29,8 @@ EXTERNAL_DEPENDENCIES = []
 """
 
 
+_reader_programming_min_version = '1.0.0'
+
 def load_libdmtx():
     """Loads the libdmtx shared library.
 
@@ -83,8 +85,8 @@ def dmtxVersion():
     return _dmtxVersion().decode()
 
 
-if LooseVersion(dmtxVersion()) < LooseVersion('0.7.7'):
-    def dmtxReaderProgramming():
+if LooseVersion(dmtxVersion()) < LooseVersion(_reader_programming_min_version):
+    def dmtxHasReaderProgramming():
         """Returns False, feature not present on older verion.
 
         Returns:
@@ -92,15 +94,15 @@ if LooseVersion(dmtxVersion()) < LooseVersion('0.7.7'):
         """
         return False
 else:
-    _dmtxReaderProgramming = libdmtx_function('dmtxReaderProgramming', c_uint)
+    _dmtxHasReaderProgramming = libdmtx_function('dmtxHasReaderProgramming', c_uint)
 
-    def dmtxReaderProgramming():
+    def dmtxHasReaderProgramming():
         """Returns true if Reader Programming feature was configured at build time.
 
         Returns:
             bool: Feature enabled or not
         """
-        _ret_val = True if _dmtxReaderProgramming() == 1 else False
+        _ret_val = True if _dmtxHasReaderProgramming() == 1 else False
         return _ret_val
 
 
@@ -568,7 +570,7 @@ dmtxEncodeSetProp = libdmtx_function(
     c_int     # value
 )
 
-if LooseVersion(dmtxVersion()) < LooseVersion('0.7.7'):
+if LooseVersion(dmtxVersion()) < LooseVersion(_reader_programming_min_version):
     dmtxEncodeDataMatrix = libdmtx_function(
         'dmtxEncodeDataMatrix',
         DmtxPassFail,
@@ -577,7 +579,7 @@ if LooseVersion(dmtxVersion()) < LooseVersion('0.7.7'):
         POINTER(c_ubyte)
     )
 else:
-    if dmtxReaderProgramming():
+    if dmtxHasReaderProgramming():
         dmtxEncodeDataMatrix = libdmtx_function(
             'dmtxEncodeDataMatrix',
             DmtxPassFail,

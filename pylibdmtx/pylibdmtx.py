@@ -14,7 +14,7 @@ from .wrapper import (
     dmtxMatrix3VMultiplyBy, dmtxDecodeSetProp, DmtxPackOrder, DmtxProperty,
     DmtxUndefined, DmtxVector2, EXTERNAL_DEPENDENCIES, DmtxFalse, DmtxTrue,
     DmtxSymbolSize, DmtxScheme, dmtxEncodeSetProp, dmtxEncodeDataMatrix,
-    dmtxImageGetProp, dmtxEncodeCreate, dmtxEncodeDestroy, dmtxReaderProgramming
+    dmtxImageGetProp, dmtxEncodeCreate, dmtxEncodeDestroy, dmtxHasReaderProgramming
 )
 
 __all__ = [
@@ -360,10 +360,10 @@ def encode(data, scheme=None, size=None, reader_programming=DmtxFalse):
         dmtxEncodeSetProp(encoder, DmtxProperty.DmtxPropScheme, scheme)
         dmtxEncodeSetProp(encoder, DmtxProperty.DmtxPropSizeRequest, size)
 
-        if reader_programming == DmtxTrue and dmtxReaderProgramming():
+        if reader_programming == DmtxTrue and dmtxHasReaderProgramming():
             dmtxEncodeSetProp(encoder, DmtxProperty.DmtxPropFnc1, 0xF1)
 
-        if dmtxReaderProgramming():
+        if dmtxHasReaderProgramming():
             _ret = dmtxEncodeDataMatrix(encoder, len(data), cast(data, c_ubyte_p), reader_programming)
         else:
             _ret = dmtxEncodeDataMatrix(encoder, len(data), cast(data, c_ubyte_p))
