@@ -16,7 +16,8 @@ __all__ = [
     'dmtxDecodeCreate', 'dmtxDecodeDestroy', 'dmtxRegionDestroy',
     'dmtxMessageDestroy', 'dmtxTimeAdd', 'dmtxMatrix3VMultiplyBy',
     'dmtxDecodeSetProp', 'DmtxPackOrder', 'DmtxProperty', 'dmtxTimeNow',
-    'dmtxDecodeMatrixRegion', 'dmtxRegionFindNext'
+    'dmtxDecodeMatrixRegion', 'dmtxRegionFindNext', 'dmtxVersion',
+    'dmtxHasReaderProgramming'
 ]
 
 # Globals populated in load_libdmtx
