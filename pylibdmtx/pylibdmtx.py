@@ -229,7 +229,7 @@ def _pixel_data(image):
 
 def decode(image, timeout=None, gap_size=None, shrink=1, shape=None,
            deviation=None, threshold=None, min_edge=None, max_edge=None,
-           corrections=None, max_count=None):
+           corrections=None, fnc1=None, max_count=None):
     """Decodes datamatrix barcodes in `image`.
 
     Args:
@@ -243,6 +243,7 @@ def decode(image, timeout=None, gap_size=None, shrink=1, shape=None,
         min_edge (int):
         max_edge (int):
         corrections (int):
+        fnc1 (int): gs1 seperator
         max_count (int): stop after reading this many barcodes. `None` to read
             as many as possible.
 
@@ -270,7 +271,8 @@ def decode(image, timeout=None, gap_size=None, shrink=1, shape=None,
                 (DmtxProperty.DmtxPropSquareDevn, deviation),
                 (DmtxProperty.DmtxPropEdgeThresh, threshold),
                 (DmtxProperty.DmtxPropEdgeMin, min_edge),
-                (DmtxProperty.DmtxPropEdgeMax, max_edge)
+                (DmtxProperty.DmtxPropEdgeMax, max_edge),
+                (DmtxProperty.DmtxPropFnc1, fnc1)
             ]
 
             # Set only those properties with a non-None value
