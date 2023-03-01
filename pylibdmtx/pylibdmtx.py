@@ -12,13 +12,13 @@ from .wrapper import (
     dmtxDecodeDestroy, dmtxRegionDestroy, dmtxMessageDestroy, dmtxTimeAdd,
     dmtxTimeNow, dmtxDecodeMatrixRegion, dmtxRegionFindNext,
     dmtxMatrix3VMultiplyBy, dmtxDecodeSetProp, DmtxPackOrder, DmtxProperty,
-    DmtxUndefined, DmtxVector2, EXTERNAL_DEPENDENCIES,
+    DmtxUndefined, DmtxVector2, EXTERNAL_DEPENDENCIES, DmtxFalse, DmtxTrue,
     DmtxSymbolSize, DmtxScheme, dmtxEncodeSetProp, dmtxEncodeDataMatrix,
-    dmtxImageGetProp, dmtxEncodeCreate, dmtxEncodeDestroy
+    dmtxImageGetProp, dmtxEncodeCreate, dmtxEncodeDestroy, dmtxHasReaderProgramming
 )
 
 __all__ = [
-    'decode', 'encode', 'Encoded', 'ENCODING_SCHEME_NAMES',
+    'decode', 'encode', 'Encoded', 'ENCODING_SCHEME_NAMES', 'DmtxFalse', 'DmtxTrue',
     'ENCODING_SIZE_NAMES', 'EXTERNAL_DEPENDENCIES',
 ]
 
@@ -313,7 +313,7 @@ def _encoder():
         dmtxEncodeDestroy(byref(encoder))
 
 
-def encode(data, scheme=None, size=None):
+def encode(data, scheme=None, size=None, reader_programming=DmtxFalse):
     """
     Encodes `data` in a DataMatrix image.
 
@@ -360,7 +360,15 @@ def encode(data, scheme=None, size=None):
         dmtxEncodeSetProp(encoder, DmtxProperty.DmtxPropScheme, scheme)
         dmtxEncodeSetProp(encoder, DmtxProperty.DmtxPropSizeRequest, size)
 
-        if dmtxEncodeDataMatrix(encoder, len(data), cast(data, c_ubyte_p)) == 0:
+        if reader_programming == DmtxTrue and dmtxHasReaderProgramming():
+            dmtxEncodeSetProp(encoder, DmtxProperty.DmtxPropFnc1, 0xF1)
+
+        if dmtxHasReaderProgramming():
+            _ret = dmtxEncodeDataMatrix(encoder, len(data), cast(data, c_ubyte_p), reader_programming)
+        else:
+            _ret = dmtxEncodeDataMatrix(encoder, len(data), cast(data, c_ubyte_p))
+
+        if _ret == 0:
             raise PyLibDMTXError(
                 'Could not encode data, possibly because the image is not '
                 'large enough to contain the data'
