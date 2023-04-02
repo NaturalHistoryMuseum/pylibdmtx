@@ -22,6 +22,8 @@ __all__ = [
     'ENCODING_SIZE_NAMES', 'EXTERNAL_DEPENDENCIES',
 ]
 
+FNC1_VAL = b'\x38'
+
 ENCODING_SCHEME_PREFIX = 'DmtxScheme'
 ENCODING_SIZE_PREFIX = 'DmtxSymbol'
 
@@ -313,7 +315,7 @@ def _encoder():
         dmtxEncodeDestroy(byref(encoder))
 
 
-def encode(data, scheme=None, size=None, fnc1=None):
+def encode(data, scheme=None, size=None, fnc1=False, module=1, margin=0):
     """
     Encodes `data` in a DataMatrix image.
 
@@ -325,7 +327,9 @@ def encode(data, scheme=None, size=None, fnc1=None):
             If `None`, defaults to 'Ascii'.
         size: image dimensions - one of `ENCODING_SIZE_NAMES`, or `None`.
             If `None`, defaults to 'ShapeAuto'.
-        fnc1: stub
+        fnc1: (T/F) whether to generate GS1 datamatrix
+        module: pixels per module
+        margin: pixels on margin (blank)
 
     Returns:
         Encoded: with properties `(width, height, bpp, pixels)`.
@@ -357,10 +361,18 @@ def encode(data, scheme=None, size=None, fnc1=None):
         )
     scheme = getattr(DmtxScheme, scheme_name)
 
+    data = bytes(data, 'utf-8')
+    if fnc1:
+        data = FNC1_VAL + data
+
+
     with _encoder() as encoder:
         dmtxEncodeSetProp(encoder, DmtxProperty.DmtxPropScheme, scheme)
         dmtxEncodeSetProp(encoder, DmtxProperty.DmtxPropSizeRequest, size)
-        dmtxEncodeSetProp(encoder, DmtxProperty.DmtxPropFnc1, fnc1)
+        if fnc1:
+            dmtxEncodeSetProp(encoder, DmtxProperty.DmtxPropFnc1, 0xe8)
+        dmtxEncodeSetProp(encoder, DmtxProperty.DmtxPropModuleSize, module)
+        dmtxEncodeSetProp(encoder, DmtxProperty.DmtxPropMarginSize, margin)
 
         if dmtxEncodeDataMatrix(encoder, len(data), cast(data, c_ubyte_p)) == 0:
             raise PyLibDMTXError(
