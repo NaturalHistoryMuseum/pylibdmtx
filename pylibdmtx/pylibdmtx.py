@@ -22,8 +22,6 @@ __all__ = [
     'ENCODING_SIZE_NAMES', 'EXTERNAL_DEPENDENCIES',
 ]
 
-FNC1_VAL = b'\x38'
-
 ENCODING_SCHEME_PREFIX = 'DmtxScheme'
 ENCODING_SIZE_PREFIX = 'DmtxSymbol'
 
@@ -53,6 +51,8 @@ _PACK_ORDER = {
     24: DmtxPackOrder.DmtxPack24bppRGB,
     32: DmtxPackOrder.DmtxPack32bppRGBX,
 }
+
+FNC1_VAL = '\xe8'
 
 
 @contextmanager
@@ -361,10 +361,8 @@ def encode(data, scheme=None, size=None, fnc1=False, module=1, margin=0):
         )
     scheme = getattr(DmtxScheme, scheme_name)
 
-    data = bytes(data, 'utf-8')
     if fnc1:
-        data = FNC1_VAL + data
-
+        data = b'\xe8' + data
 
     with _encoder() as encoder:
         dmtxEncodeSetProp(encoder, DmtxProperty.DmtxPropScheme, scheme)
