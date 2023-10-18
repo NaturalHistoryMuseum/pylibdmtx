@@ -5,7 +5,7 @@ from ctypes import (
     c_ulonglong, c_char_p, Structure, CFUNCTYPE, POINTER
 )
 from enum import IntEnum, unique
-from distutils.version import LooseVersion
+from packaging import version
 
 from . import dmtx_library
 
@@ -196,7 +196,7 @@ DmtxMatrix3 = c_double * 3 * 3
 
 
 # Structs
-if LooseVersion(dmtxVersion()) < LooseVersion('0.7.5'):
+if version.parse(dmtxVersion()) < version.parse('0.7.5'):
     class DmtxMessage(Structure):
         _fields_ = [
             ('arraySize', c_size_t),
@@ -310,7 +310,7 @@ class DmtxScanGrid(Structure):
     ]
 
 
-if LooseVersion(dmtxVersion()) < LooseVersion('0.7.5'):
+if version.parse(dmtxVersion()) < version.parse('0.7.5'):
     class DmtxDecode(Structure):
         _fields_ = [
             ('edgeMin', c_int),
@@ -398,7 +398,7 @@ class DmtxRegion(Structure):
     ]
 
 
-if LooseVersion(dmtxVersion()) < LooseVersion('0.7.5'):
+if version.parse(dmtxVersion()) < version.parse('0.7.5'):
     class DmtxEncode(Structure):
         _fields_ = [
             ('method', c_int),
