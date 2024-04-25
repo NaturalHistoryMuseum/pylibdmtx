@@ -7,8 +7,8 @@ pylibdmtx
 .. image:: https://badge.fury.io/py/pylibdmtx.svg
     :target: https://pypi.python.org/pypi/pylibdmtx
 
-.. image:: https://img.shields.io/github/workflow/status/NaturalHistoryMuseum/pylibdmtx/Tests/master?label=tests
-    :target: https://github.com/NaturalHistoryMuseum/pylibdmtx/actions?query=workflow%3A%22Tests%22
+.. image:: https://img.shields.io/github/actions/workflow/status/NaturalHistoryMuseum/pylibdmtx/test.yml?label=tests
+    :target: https://github.com/NaturalHistoryMuseum/pylibdmtx/actions/workflows/test.yml
 
 .. image:: https://coveralls.io/repos/github/NaturalHistoryMuseum/pylibdmtx/badge.svg?branch=master
     :target: https://coveralls.io/github/NaturalHistoryMuseum/pylibdmtx?branch=master
@@ -45,8 +45,20 @@ Linux:
 
    sudo apt-get install libdmtx0a
 
-Install this Python wrapper; use the second form to install dependencies of the
-``read_datamatrix`` and ``write_datamatrix`` command-line scripts:
+The PyPI package is currently out-of-date; to install the latest version, use:
+
+::
+
+    pip install git+https://github.com/NaturalHistoryMuseum/pylibdmtx.git
+
+To use the
+``read_datamatrix`` and ``write_datamatrix`` command-line scripts, you will also need to install Pillow >= 3.2.0:
+
+::
+
+    pip install "Pillow>=3.2.0"
+
+If you want to install the outdated package from PyPI:
 
 ::
 

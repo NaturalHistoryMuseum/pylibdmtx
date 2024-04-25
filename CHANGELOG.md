@@ -1,3 +1,7 @@
+### v0.1.11
+
+* #51 Return four vertices and Rect object for rotated images
+
 ### v0.1.10
 
 * #68 Add support for images loaded using imageio
