@@ -333,7 +333,7 @@ def _encoder():
         dmtxEncodeDestroy(byref(encoder))
 
 
-def encode(data, scheme=None, size=None):
+def encode(data, scheme=None, size=None, fnc1=DmtxUndefined):
     """
     Encodes `data` in a DataMatrix image.
 
@@ -345,6 +345,8 @@ def encode(data, scheme=None, size=None):
             If `None`, defaults to 'Ascii'.
         size: image dimensions - one of `ENCODING_SIZE_NAMES`, or `None`.
             If `None`, defaults to 'ShapeAuto'.
+        fnc1: ASCII value of char to use as FNC1 or `None`. For example `43` (char '+') for data: '+12345+67890'
+            If `None`, defaults to `DmtxUndefined`. Will do nothing if libdmtx < 0.7.5.
 
     Returns:
         Encoded: with properties `(width, height, bpp, pixels)`.
@@ -354,6 +356,8 @@ def encode(data, scheme=None, size=None):
 
     """
 
+    fnc1 = fnc1 if fnc1 else DmtxUndefined
+    
     size = size if size else 'ShapeAuto'
     size_name = '{0}{1}'.format(ENCODING_SIZE_PREFIX, size)
     if not hasattr(DmtxSymbolSize, size_name):
@@ -377,6 +381,7 @@ def encode(data, scheme=None, size=None):
     scheme = getattr(DmtxScheme, scheme_name)
 
     with _encoder() as encoder:
+        dmtxEncodeSetProp(encoder, DmtxProperty.DmtxPropFnc1, fnc1)
         dmtxEncodeSetProp(encoder, DmtxProperty.DmtxPropScheme, scheme)
         dmtxEncodeSetProp(encoder, DmtxProperty.DmtxPropSizeRequest, size)
 
