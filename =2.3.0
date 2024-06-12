@@ -1,0 +1,11 @@
+Using version ^2.27.0 for imageio
+
+Updating dependencies
+Resolving dependencies...
+
+Writing lock file
+
+Package operations: 2 installs, 0 updates, 0 removals
+
+  • Installing pillow (9.5.0)
+  • Installing imageio (2.27.0)
