@@ -215,6 +215,47 @@ class TestEncode(unittest.TestCase):
             encode, b' '*50, size='10x10'
         )
 
+    def test_base256_binary_data_with_null_bytes(self):
+        """Test Base256 scheme encoding and decoding of binary data containing null bytes."""
+        # Create binary data that contains null bytes (0x00)
+        # This represents typical binary data that may contain null bytes
+        binary_data = b'\x01\x02\x00\x03\x04\x00\x05\x06'
+        
+        # Encode the binary data using Base256 scheme
+        encoded = encode(binary_data, scheme='Base256')
+        
+        # Create PIL image from encoded data
+        image = Image.frombytes('RGB', (encoded.width, encoded.height), encoded.pixels)
+        
+        # Decode the image back to binary data
+        decoded_results = decode(image)
+        
+        # Verify that binary data with null bytes is preserved correctly
+        self.assertEqual(1, len(decoded_results))
+        decoded_data = decoded_results[0].data
+        
+        # The decoded data should exactly match the original binary data
+        self.assertEqual(binary_data, decoded_data, 
+                        "Binary data with null bytes should be preserved during encoding/decoding")
+
+    def test_ascii_scheme_with_null_bytes(self):
+        """Test ASCII scheme encoding and decoding of data containing null bytes."""
+        # Test data with null bytes
+        test_data = b'hello\x00world'
+        
+        # Encode using ASCII scheme
+        encoded = encode(test_data, scheme='Ascii')
+        image = Image.frombytes('RGB', (encoded.width, encoded.height), encoded.pixels)
+        
+        # Decode and verify the null byte is preserved
+        decoded_results = decode(image)
+        self.assertEqual(1, len(decoded_results))
+        decoded_data = decoded_results[0].data
+        
+        # The decoded data should preserve null bytes
+        self.assertEqual(test_data, decoded_data, 
+                        "ASCII scheme should preserve null bytes during encoding/decoding")
+
 
 if __name__ == '__main__':
     unittest.main()

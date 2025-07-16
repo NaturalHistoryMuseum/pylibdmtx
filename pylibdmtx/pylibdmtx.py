@@ -178,7 +178,7 @@ def _decode_region(decoder, region, corrections, shrink, return_vertices=False):
 
             if return_vertices:
                 return Decoded(
-                    string_at(msg.contents.output),
+                    string_at(msg.contents.output, msg.contents.outputIdx),
                     Rect_vertices((x00,y00), (x01,y01), (x10,y10), (x11,y11))
                 )
             else:
@@ -188,7 +188,7 @@ def _decode_region(decoder, region, corrections, shrink, return_vertices=False):
                 max_y = max(y00, y11, y10, y01)
 
                 return Decoded(
-                    string_at(msg.contents.output),
+                    string_at(msg.contents.output, msg.contents.outputIdx),
                     Rect(min_x, min_y, max_x - min_x, max_y - min_y)
                     )
 
