@@ -2,11 +2,7 @@ import unittest
 
 from pathlib import Path
 
-try:
-    from unittest.mock import call, patch
-except ImportError:
-    # Python 2
-    from mock import call, patch
+from unittest.mock import call, patch
 
 import numpy as np
 
@@ -47,10 +43,6 @@ class TestDecode(unittest.TestCase):
     def setUpClass(cls):
         cls.datamatrix = Image.open(str(TESTDATA.joinpath('datamatrix.png')))
         cls.empty = Image.open(str(TESTDATA.joinpath('empty.png')))
-
-        # assertRaisesRegexp was a deprecated alias removed in Python 3.11
-        if not hasattr(cls, 'assertRaisesRegex'):
-            cls.assertRaisesRegex = cls.assertRaisesRegexp
 
     @classmethod
     def tearDownClass(cls):
@@ -142,12 +134,6 @@ class TestDecode(unittest.TestCase):
 
 
 class TestEncode(unittest.TestCase):
-    @classmethod
-    def setUpClass(cls):
-        # assertRaisesRegexp was a deprecated alias removed in Python 3.11
-        if not hasattr(cls, 'assertRaisesRegex'):
-            cls.assertRaisesRegex = cls.assertRaisesRegexp
-
     def _assert_encoded_data(self, expected_data, encoded):
         # Check encoded data
         image = Image.frombytes(

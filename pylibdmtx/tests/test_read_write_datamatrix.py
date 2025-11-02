@@ -5,12 +5,7 @@ import unittest
 
 from pathlib import Path
 from contextlib import contextmanager
-
-# TODO Would io.StringIO not work in all cases?
-try:
-    from cStringIO import StringIO
-except ImportError:
-    from io import StringIO
+from io import StringIO
 
 from pylibdmtx.scripts.read_datamatrix import main as main_read
 from pylibdmtx.scripts.write_datamatrix import main as main_write
@@ -31,10 +26,7 @@ class TestReadWriteDatamatrix(unittest.TestCase):
         with capture_stdout() as stdout:
             main_read([str(Path(__file__).parent.joinpath('datamatrix.png'))])
 
-        if 2 == sys.version_info[0]:
-            expected = "Stegosaurus\nPlesiosaurus"
-        else:
-            expected = "b'Stegosaurus'\nb'Plesiosaurus'"
+        expected = "b'Stegosaurus'\nb'Plesiosaurus'"
 
         self.assertEqual(expected, stdout.getvalue().strip())
 
@@ -46,9 +38,7 @@ class TestReadWriteDatamatrix(unittest.TestCase):
             with capture_stdout() as stdout:
                 main_read([tmpfile.name])
 
-            expected = (
-                "Stegosaurus" if 2 == sys.version_info[0] else "b'Stegosaurus'"
-            )
+            expected = "b'Stegosaurus'"
             self.assertEqual(expected, stdout.getvalue().strip())
         finally:
             os.unlink(tmpfile.name)

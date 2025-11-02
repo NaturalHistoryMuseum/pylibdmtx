@@ -1,3 +1,3 @@
-"""Read and write Data Matrix barcodes from Python 2 and 3."""
+"""Read and write Data Matrix barcodes."""
 
 __version__ = '0.1.11'

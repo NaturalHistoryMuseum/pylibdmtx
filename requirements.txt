@@ -1,5 +1,6 @@
 # Dependencies required for development and releasing
 -r requirements-test.txt
+build
+hatchling
 tox
 twine
-wheel

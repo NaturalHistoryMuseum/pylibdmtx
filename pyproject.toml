@@ -1,0 +1,51 @@
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[project]
+name = "pylibdmtx"
+dynamic = ["version"]
+description = "Read and write Data Matrix barcodes."
+readme = "README.rst"
+license = {text = "MIT"}
+authors = [
+    {name = "Lawrence Hudson", email = "quicklizard@googlemail.com"},
+]
+requires-python = ">=3.10"
+classifiers = [
+    "Development Status :: 4 - Beta",
+    "License :: OSI Approved :: MIT License",
+    "Topic :: Utilities",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+    "Programming Language :: Python :: 3.13",
+]
+
+[project.urls]
+Homepage = "https://github.com/NaturalHistoryMuseum/pylibdmtx/"
+
+[project.optional-dependencies]
+scripts = [
+    "Pillow>=3.2.0",
+]
+
+[project.scripts]
+read_datamatrix = "pylibdmtx.scripts.read_datamatrix:main"
+write_datamatrix = "pylibdmtx.scripts.write_datamatrix:main"
+
+[tool.hatch.version]
+path = "pylibdmtx/__init__.py"
+
+[tool.hatch.build.targets.sdist]
+include = [
+    "/pylibdmtx",
+]
+
+[tool.hatch.build.targets.wheel]
+packages = ["pylibdmtx"]
+
+[tool.pytest.ini_options]
+testpaths = ["pylibdmtx/tests"]
+addopts = "--verbose --cov=pylibdmtx --cov-report=term-missing"

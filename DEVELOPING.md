@@ -32,23 +32,11 @@ in a frozen binary.
 
 1. Build
 
-    Create source and wheel builds. The `win32` and `win_amd64` wheels will
-    contain the appropriate `libdmtx.dll`.
+    Create source and wheel builds using the `build` package.
 
     ```
-    rm -rf build dist MANIFEST.in pylibdmtx.egg-info
-    cp MANIFEST.in.all MANIFEST.in
-    ./setup.py bdist_wheel
-
-    cat MANIFEST.in.all MANIFEST.in.win32 > MANIFEST.in
-    ./setup.py bdist_wheel --plat-name=win32
-
-    # Remove these dirs to prevent win32 DLL from being included in win64 build
-    rm -rf build pylibdmtx.egg-info
-    cat MANIFEST.in.all MANIFEST.in.win64 > MANIFEST.in
-    ./setup.py bdist_wheel --plat-name=win_amd64
-
-    rm -rf build MANIFEST.in pylibdmtx.egg-info
+    rm -rf build dist pylibdmtx.egg-info
+    python -m build
     ```
 
 2. Release to pypitest (see https://packaging.python.org/guides/using-testpypi/)
@@ -59,23 +47,16 @@ in a frozen binary.
 
 3. Test the release to pypitest
 
-    * Check https://testpypi.python.org/pypi/pylibdmtx/
+    * Check https://test.pypi.org/project/pylibdmtx/
 
-    * If you are on Windows
-
-    ```
-    c:\python27\python.exe -m venv test1
-    test1\scripts\activate
-    ```
-
-    * Install dependencies that are not on testpypi.python.org.
-    If you are on Python 2.x, these are mandatory
+    * Create a test virtual environment
 
     ```
-    pip install enum34 pathlib
+    python -m venv test_env
+    source test_env/bin/activate  # On Windows: test_env\Scripts\activate
     ```
 
-    * Pillow for tests and `read_datamatrix`. We can't use the
+    * Install Pillow for tests and `read_datamatrix`. We can't use the
     `pip install pylibdmtx[scripts]` form here because `Pillow` will not be
     on testpypi.python.org
 
@@ -86,7 +67,7 @@ in a frozen binary.
     * Install the package itself
 
     ```
-    pip install --index https://testpypi.python.org/simple pylibdmtx
+    pip install --index-url https://test.pypi.org/simple/ pylibdmtx
     ```
 
     * Test
@@ -102,7 +83,7 @@ in a frozen binary.
     twine upload dist/*
     ```
 
-    * Check https://pypi.python.org/pypi/pylibdmtx/
+    * Check https://pypi.org/project/pylibdmtx/
 
     * Install!
 

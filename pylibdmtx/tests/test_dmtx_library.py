@@ -2,11 +2,7 @@ import unittest
 
 from pathlib import Path
 
-try:
-    from unittest.mock import call, patch
-except ImportError:
-    # Python 2
-    from mock import call, patch
+from unittest.mock import call, patch
 
 from pylibdmtx import dmtx_library
 
